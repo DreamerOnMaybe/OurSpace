@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+:root {
+	--colors-brand-secondary-100: #ff6a5f;
+	--colors-brand-primary-100: #465a54;
+	--colors-brand-primary-120: #252f2c;
+	--colors-neutrals-0: #fafaf9;
+	--colors-neutrals-2: #ebebe6;
+	--colors-neutrals-3: #e2e1da;
+	--colors-neutrals-5: #cecdc1;
+	--colors-neutrals-8: #52524d;
+	--colors-neutrals-8: #3e3e3a;
+	--colors-neutrals-9: #292927;
+	--surface-surface-neutral-0: var(--colors-neutrals-0,5);
+	--text-text-neutral-9: var(--colors-neutrals-9);
+	--surface-surface-neutral-2: var(--colors-neutrals-2);
+	--surface-surface-neutral-3: var(--colors-neutrals-3);
+	--surface-surface-primary-100: var(--colors-brand-primary-100);
+	--surface-surface-primary-120: var(--colors-brand-primary-120);
+	--surface-surface-secondary-100: var(--colors-brand-secondary-100);
+	--text-text-neutral-8: var(--colors-neutrals-8);
+	--text-text-neutral-3: var(--colors-neutrals-3);
+	--text-text-neutral-2: var(--colors-neutrals-2);
+	--text-text-neutral-0: var(--colors-neutrals-0,5);
+	--text-text-primary-100: var(--colors-brand-primary-100);
+	--text-text-secondary-100: var(--colors-brand-secondary-100);
+	--surface-surface-neutral-9: var(--colors-neutrals-9);
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.back-btn {
+  border: none;
+  background-color: var(--surface-surface-neutral-2);
+  padding: 8px 16px;
+  border-radius: 360px;
+}
+
+.stats-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  border-radius: 32px;
+  padding: 20px;
+  font-size: 18px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.green-card {
+  background: var(--surface-surface-primary-100);
+  color: var(--text-text-neutral-0);
+}
+
+.steps-container {
+  position: relative;
+  margin-top: 20px;
+}
+
+.steps-count {
+  font-size: 18px;
+  top: 24px;
+  left: 33px;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+}
+
+.coral-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-surface-secondary-100);
+  color: var(--text-text-neutral-9);
+}
+
+.water-statistics {
+  margin: auto 0;
+}
+
+.water-statistics p {
+  font-weight: 700;
+}
+
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  background: var(--surface-surface-neutral-2);
+  border-radius: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.nav-item {
+  border: none;
+  background: none;
+}
+
+.plus {
+  background: var(--surface-surface-primary-120);
+  padding: 8px 16px;
+  border-radius: 360px;
+}
