@@ -10,6 +10,9 @@ import user from './assets/user.svg'
 import plus from './assets/plus.svg'
 import calendar from './assets/calendar.svg'
 import bellNotification from './assets/bell-notification.svg'
+import sunny from './assets/sunny.svg'
+import wind from './assets/wind.svg'
+import humidity from './assets/humidity.svg'
 
 function App() {
   return (
@@ -65,6 +68,24 @@ function App() {
             <span>liters</span>
           </div>
         </div>
+      </div>
+
+      <div className="weather-card">
+        <div className="weather-statistic">
+          <div className="weather-card-item">
+            <p className='temp card-text'>28°</p>
+            <img src={sunny} alt=""/>
+          </div>
+          <div className="weather-card-item">
+            <p className='wind'>12 m/s</p>
+            <img src={wind} alt=""/>
+          </div>
+          <div className="weather-card-item">
+            <p className='humidity'>62 %</p>
+            <img src={humidity} alt=""/>
+          </div>
+        </div>
+        <p className="weather-recommendation">Хорошая погода для прогулки ⛅️</p>
       </div>
 
       {/* Список полезных привычек, добавление/удаление */}
