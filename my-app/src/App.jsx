@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import './App.css'
 
 import backIcon from './assets/arrow-left-long.svg'
@@ -15,6 +15,8 @@ import wind from './assets/wind.svg'
 import humidity from './assets/humidity.svg'
 
 function App() {
+  const [glasses, setGlasses] = useState(0)
+  const liters = (glasses * 0.2).toFixed(2)
   return (
     <div className='app-container'>
       <header className='header'>
@@ -64,8 +66,15 @@ function App() {
             <img src={water} alt="Вода" />
           </div>
           <div className="water-statistics">
-            <p>2.48</p>
-            <span>liters</span>
+            <div className="water-amount">
+              <p>{liters}</p>
+              <span>Литров</span>
+            </div>
+            <div className="water-counter">
+              <button onClick={() => glasses > 0 && setGlasses(glasses - 1)}>-</button>
+              <span>{glasses} ст.</span>
+              <button onClick={() => setGlasses(glasses + 1)}>+</button>
+            </div>
           </div>
         </div>
       </div>

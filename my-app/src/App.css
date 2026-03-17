@@ -96,6 +96,21 @@
   font-weight: 700;
 }
 
+.water-counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  font-weight: 600;
+  margin-top: 15px;
+}
+
+.water-counter button {
+  border: none;
+  background: none;
+  font-size: 26px;
+}
+
 .nav-bar {
   position: fixed;
   bottom: 0;
