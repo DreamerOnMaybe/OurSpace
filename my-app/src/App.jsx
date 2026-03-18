@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, { useState, useEffect } from 'react'
 import './App.css'
 import HabitList from './components/HabitList'
 import AddHabitModal from './components/AddHabitModal'
@@ -22,10 +22,30 @@ function App() {
   const maxGlasses = 10
   const progress = 282.7 - (282.7 * glasses / maxGlasses)
   const [habits, setHabits] = useState([])
+  const [isLoaded, setIsLoaded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const handleAddHabit = (newHabit) => {
     setHabits([...habits, newHabit])
   }
+  useEffect(() => {
+    //Достаём сохранённые привычки и дату
+    const savedHabits = localStorage.getItem('habits')
+    const savedDate = localStorage.getItem('date')
+
+    // Получаем сегодняшнюю дату
+    const today = new Date().toLocaleDateString()
+
+    if (savedDate !== today) {
+      localStorage.setItem('date', today)
+    } else if (savedHabits) {
+      setHabits(JSON.parse(savedHabits))
+    }
+    setIsLoaded(true)
+  }, [])
+  useEffect(() => {
+    if(!isLoaded) return
+    localStorage.setItem('habits', JSON.stringify(habits))
+  }, [habits, isLoaded])
 
   return (
     <div className='app-container'>
