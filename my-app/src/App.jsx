@@ -16,17 +16,29 @@ import sunny from './assets/sunny.svg'
 import wind from './assets/wind.svg'
 import humidity from './assets/humidity.svg'
 
+const cityName = 'Omsk'
+const apiKey = import.meta.env.VITE_API_KEY
+const currentUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric&lang=ru`
+
 function App() {
   const [glasses, setGlasses] = useState(0)
   const liters = (glasses * 0.2).toFixed(2)
   const maxGlasses = 10
   const progress = 282.7 - (282.7 * glasses / maxGlasses)
+  const [weather, setWeather] = useState(null)
+  const recomendation = weather?.main.temp >= 0 ? 'Хорошая погода для прогулки ⛅️' : 'Сейчас прохладно ☁️'
   const [habits, setHabits] = useState([])
   const [isLoaded, setIsLoaded] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const handleAddHabit = (newHabit) => {
-    setHabits([...habits, newHabit])
+    setHabits([newHabit, ...habits])
   }
+
+  useEffect(() => {
+    fetch(currentUrl)
+      .then(res => res.json())
+      .then(data => setWeather(data))
+  }, [])
   useEffect(() => {
     //Достаём сохранённые привычки и дату
     const savedHabits = localStorage.getItem('habits')
@@ -131,19 +143,19 @@ function App() {
       <div className="weather-card">
         <div className="weather-statistic">
           <div className="weather-card-item">
-            <p className='temp card-text'>28°</p>
+            <p className='temp card-text'>{Math.round(weather?.main.temp)}°</p>
             <img src={sunny} alt=""/>
           </div>
           <div className="weather-card-item">
-            <p className='wind'>12 m/s</p>
+            <p className='wind'>{weather?.wind.speed} m/s</p>
             <img src={wind} alt=""/>
           </div>
           <div className="weather-card-item">
-            <p className='humidity'>62 %</p>
+            <p className='humidity'>{weather?.main.humidity} %</p>
             <img src={humidity} alt=""/>
           </div>
         </div>
-        <p className="weather-recommendation">Хорошая погода для прогулки ⛅️</p>
+        <p className="weather-recommendation">{recomendation}</p>
       </div>
 
       {habits.length === 0 
