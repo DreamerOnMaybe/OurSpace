@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap'); */
+/* @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
 
 :root {
 	--colors-brand-secondary-100: #ff6a5f;
@@ -158,4 +160,10 @@
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.empty-text {
+  margin-top: 20px;
+  text-align: center;
+  opacity: 0.5;
 }

@@ -1,0 +1,81 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal {
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+    background: var(--surface-surface-primary-100);
+    margin: 20px;
+    padding: 20px;
+    width: 100%;
+    height: 60%;
+    border-radius: 30px;
+}
+
+.modal-footer {
+    margin-top: auto;
+}
+
+.modal h3 {
+    font-size: 24px;
+    color: var(--text-text-neutral-0);
+}
+
+.habit-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.habit-option {
+    color: var(--text-text-neutral-0);
+    padding: 5px;
+    border-radius: 30px;
+    font-size: 18px;
+    outline: none;
+    border: 2px solid var(--surface-surface-primary-100);
+    background: var(--surface-surface-primary-120);
+    transition: all 0.2s ease;
+}
+
+.habit-option.active {
+    border: 2px solid var(--surface-surface-secondary-100);
+    transition: all 0.2s ease;
+}
+
+input {
+    padding: 5px;
+    border-radius: 8px;
+    outline: none;
+    border: none;
+    width: 100%;
+    background: var(--surface-surface-neutral-2);
+}
+
+.add-modal-btns {
+    margin-top: 20px;
+    display: flex;gap: 15px;
+}
+
+.add-modal-btns button {
+    background: var(--surface-surface-primary-120);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 30px;
+    color: var(--text-text-neutral-0);
+    font-size: 16px;
+    width: 100px;
+}

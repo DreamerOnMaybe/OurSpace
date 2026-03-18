@@ -1,5 +1,7 @@
 import React, {useState} from 'react'
 import './App.css'
+import HabitList from './components/HabitList'
+import AddHabitModal from './components/AddHabitModal'
 
 import backIcon from './assets/arrow-left-long.svg'
 import userAvatar from './assets/avatar.png'
@@ -17,6 +19,12 @@ import humidity from './assets/humidity.svg'
 function App() {
   const [glasses, setGlasses] = useState(0)
   const liters = (glasses * 0.2).toFixed(2)
+  const [habits, setHabits] = useState([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const handleAddHabit = (newHabit) => {
+    setHabits([...habits, newHabit])
+  }
+
   return (
     <div className='app-container'>
       <header className='header'>
@@ -97,7 +105,10 @@ function App() {
         <p className="weather-recommendation">Хорошая погода для прогулки ⛅️</p>
       </div>
 
-      {/* Список полезных привычек, добавление/удаление */}
+      {habits.length === 0 
+        ? <p className='empty-text'>Здесь пока пусто...</p>
+        : <HabitList habits={habits} />
+      }
 
       <nav className="nav-bar">
         <button className='nav-item'>
@@ -106,7 +117,7 @@ function App() {
         <button className='nav-item'>
           <img src={user} alt="Кнопка в профиль" />
         </button>
-        <button className='nav-item plus'>
+        <button className='nav-item plus' onClick={() => setIsModalOpen(true)}>
           <img src={plus} alt="Кнопка добавить" />
         </button>
         <button className='nav-item'>
@@ -116,6 +127,12 @@ function App() {
           <img src={bellNotification} alt="Кнопка уведомлений" />
         </button>
       </nav>
+      {isModalOpen && (
+        <AddHabitModal 
+          onAdd={handleAddHabit}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   )
 }

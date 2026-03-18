@@ -1,0 +1,10 @@
+.habit-card {
+    background: var(--colors-brand-primary-100);
+    padding: 10px 15px;
+    color: var(--text-text-neutral-0);
+    border-radius: 8px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
