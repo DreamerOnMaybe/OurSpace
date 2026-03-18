@@ -3,7 +3,7 @@ import './App.css'
 import HabitList from './components/HabitList'
 import AddHabitModal from './components/AddHabitModal'
 
-import backIcon from './assets/arrow-left-long.svg'
+import settings from './assets/settings.svg'
 import userAvatar from './assets/avatar.png'
 import walk from './assets/walk.svg'
 import water from './assets/water.svg'
@@ -19,6 +19,8 @@ import humidity from './assets/humidity.svg'
 function App() {
   const [glasses, setGlasses] = useState(0)
   const liters = (glasses * 0.2).toFixed(2)
+  const maxGlasses = 10
+  const progress = 282.7 - (282.7 * glasses / maxGlasses)
   const [habits, setHabits] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const handleAddHabit = (newHabit) => {
@@ -28,8 +30,8 @@ function App() {
   return (
     <div className='app-container'>
       <header className='header'>
-        <button className='back-btn'>
-          <img src={backIcon} alt="Назад" />
+        <button className='settings-btn'>
+          <img src={settings} alt="Назад" />
         </button>
         <h2>Сегодня</h2>
         <div className='avatar'>
@@ -74,6 +76,25 @@ function App() {
             <img src={water} alt="Вода" />
           </div>
           <div className="water-statistics">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              {/* Фоновый круг */}
+              <circle 
+                cx="50" cy="50" r="45" 
+                stroke="rgba(255,255,255,0.2)" 
+                strokeWidth="8" fill="none" 
+              />
+              {/* Круг прогресса */}
+              <circle 
+                className='water-progress'
+                cx="50" cy="50" r="45" 
+                stroke="white" 
+                strokeWidth="8" fill="none" 
+                strokeDasharray="282.7" 
+                strokeDashoffset={progress} /* Это число меняет длину полоски */
+                strokeLinecap="round"
+                transform="rotate(-90 50 50)" /* Разворачиваем, чтобы начиналось сверху */
+              />
+            </svg>
             <div className="water-amount">
               <p>{liters}</p>
               <span>Литров</span>
@@ -81,7 +102,7 @@ function App() {
             <div className="water-counter">
               <button onClick={() => glasses > 0 && setGlasses(glasses - 1)}>-</button>
               <span>{glasses} ст.</span>
-              <button onClick={() => setGlasses(glasses + 1)}>+</button>
+              <button onClick={() => glasses < maxGlasses && setGlasses(glasses + 1)}>+</button>
             </div>
           </div>
         </div>
@@ -111,7 +132,7 @@ function App() {
       }
 
       <nav className="nav-bar">
-        <button className='nav-item'>
+        <button className='nav-item active'>
           <img src={home} alt="Кнопка домой" />
         </button>
         <button className='nav-item'>

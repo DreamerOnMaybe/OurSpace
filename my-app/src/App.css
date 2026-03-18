@@ -35,7 +35,8 @@
   gap: 20px;
 }
 
-.back-btn {
+.settings-btn {
+  display: flex;
   border: none;
   background-color: var(--surface-surface-neutral-2);
   padding: 8px 16px;
@@ -77,7 +78,7 @@
 .steps-count {
   font-size: 18px;
   top: 24px;
-  left: 33px;
+  left: 30px;
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -92,10 +93,21 @@
 
 .water-statistics {
   margin: auto 0;
+  position: relative;
+}
+
+.water-statistics svg {
+  margin-top: 15px;
 }
 
 .water-statistics p {
   font-weight: 700;
+}
+
+.water-amount {
+  position: absolute;
+  top: 35px;
+  left: 25px;
 }
 
 .water-counter {
@@ -104,7 +116,10 @@
   align-items: center;
   gap: 15px;
   font-weight: 600;
-  margin-top: 15px;
+}
+
+.water-progress {
+  transition: stroke-dashoffset 0.4s ease;
 }
 
 .water-counter button {
@@ -130,6 +145,12 @@
 .nav-item {
   border: none;
   background: none;
+}
+
+.nav-item.active {
+  background-color: var(--colors-brand-secondary-100);
+  padding: 8px 16px;
+  border-radius: 360px;
 }
 
 .plus {
