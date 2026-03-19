@@ -11,6 +11,10 @@ body {
   font-style: normal;
 }
 
+button, input {
+  font-family: inherit;
+}
+
 body, html {
   width: 100%;
   height: 100%;

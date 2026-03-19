@@ -1,0 +1,24 @@
+.week-strip {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.week-strip button {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.day-btn {
+    font-size: 18px;
+    padding: 12px;
+    background: none;
+    border: none;
+    border-radius: 15px;
+}
+
+.active {
+    background: var(--colors-brand-primary-100);
+    color: var(--text-text-neutral-0);
+}
