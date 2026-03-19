@@ -22,3 +22,17 @@
     background: var(--colors-brand-primary-100);
     color: var(--text-text-neutral-0);
 }
+
+.tabs {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.tabs button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+}

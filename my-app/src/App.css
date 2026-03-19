@@ -35,6 +35,10 @@
   gap: 20px;
 }
 
+.header h2 {
+  font-size: 20px;
+}
+
 .grey-btn {
   display: flex;
   border: none;

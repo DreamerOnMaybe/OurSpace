@@ -38,6 +38,8 @@ function Calendar() {
   const weekDays = getWeekDays()
   const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
+  const [activeTab, setActiveTab] = useState('tasks') // объявление переменной состояния и функции для её обновления
+
   return (
     <div className="app-container">
       <header className="header">
@@ -62,6 +64,25 @@ function Calendar() {
           </button>
         ))}
       </div>
+
+      <div className="tabs">
+        <button
+          className={activeTab === 'tasks' ? 'active' : ''} // тут проверка если activeTab равен значению tasks то добавляется класс active, если нет - то класса нет. то же самое и со второй кнопкой
+          onClick={() => setActiveTab('tasks')} // а тут при клике на кнопку перерисовывается компонент с новым значением
+        >
+          Задачи
+        </button>
+        <button
+          className={activeTab === 'notes' ? 'active' : ''}
+          onClick={() => setActiveTab('notes')}
+        >
+          Заметки
+        </button>
+      </div>
+      {activeTab === 'tasks'
+        ? <div className='empty-text'>Здесь будут задачи...</div>
+        : <div className='empty-text'>Здесь будут заметки...</div>
+      }
 
       <nav className="nav-bar">
         <button className="nav-item" onClick={() => navigate('/')}>
