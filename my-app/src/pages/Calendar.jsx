@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import "../App.css";
 import './Calendar.css'
+import AddTaskModal  from "../components/AddTaskModal";
+import TaskList from "../components/TaskList";
 
 import backBtn from "../assets/arrow-left-long.svg";
 import calendar from "../assets/calendar.svg";
@@ -39,6 +41,12 @@ function Calendar() {
   const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
   const [activeTab, setActiveTab] = useState('tasks') // объявление переменной состояния и функции для её обновления
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const handleAddTasks = (newTask) => {
+    setTasks([newTask, ...tasks]);
+  };
 
   return (
     <div className="app-container">
@@ -79,10 +87,11 @@ function Calendar() {
           Заметки
         </button>
       </div>
-      {activeTab === 'tasks'
-        ? <div className='empty-text'>Здесь будут задачи...</div>
-        : <div className='empty-text'>Здесь будут заметки...</div>
-      }
+      {tasks.length === 0 ? (
+        <p className="empty-text">Здесь пока пусто...</p>
+      ) : (
+        <TaskList tasks={tasks} />
+      )}
 
       <nav className="nav-bar">
         <button className="nav-item" onClick={() => navigate('/')}>
@@ -91,8 +100,8 @@ function Calendar() {
         <button className="nav-item">
           <img src={user} alt="Кнопка в профиль" />
         </button>
-        <button className="nav-item plus">
-          <img src={plus} alt="Кнопка добавить" />
+        <button className="nav-item plus" onClick={() => setIsModalOpen(true)}>
+          <img src={plus} alt="Кнопка добавить"/>
         </button>
         <button className="nav-item active">
           <img src={calendar} alt="Кнопка календарь" />
@@ -101,6 +110,12 @@ function Calendar() {
           <img src={bellNotification} alt="Кнопка уведомлений" />
         </button>
       </nav>
+      {isModalOpen && (
+        <AddTaskModal
+          onAdd={handleAddTasks}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

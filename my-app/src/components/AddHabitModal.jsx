@@ -33,7 +33,8 @@ function AddHabitModal({onAdd, onClose}) {
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal" onClick={e => e.stopPropagation()}>
+            {/* втроенный метод e.stopPropogation в React используется для предотвращения всплытия события */}
+            <div className="modal" onClick={e => e.stopPropagation()}> 
                 <h3>Добавить привычку:</h3>
                 
                 <div className="habit-options">
