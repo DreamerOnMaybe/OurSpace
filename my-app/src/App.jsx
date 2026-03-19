@@ -42,6 +42,7 @@ function App() {
   useEffect(() => {
     //Достаём сохранённые привычки и дату
     const savedHabits = localStorage.getItem('habits')
+    const savedGlasses = localStorage.getItem('savedGlasses')
     const savedDate = localStorage.getItem('date')
 
     // Получаем сегодняшнюю дату
@@ -49,15 +50,20 @@ function App() {
 
     if (savedDate !== today) {
       localStorage.setItem('date', today)
-    } else if (savedHabits) {
+      localStorage.setItem('habits', JSON.stringify([]))
+      setHabits([])
+      setGlasses(0)
+    } else if (savedHabits && savedGlasses) {
       setHabits(JSON.parse(savedHabits))
+      setGlasses(JSON.parse(savedGlasses))
     }
     setIsLoaded(true)
   }, [])
   useEffect(() => {
     if(!isLoaded) return
     localStorage.setItem('habits', JSON.stringify(habits))
-  }, [habits, isLoaded])
+    localStorage.setItem('savedGlasses', JSON.stringify(glasses))
+  }, [habits, isLoaded, glasses])
 
   return (
     <div className='app-container'>
