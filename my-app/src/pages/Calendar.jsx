@@ -48,6 +48,14 @@ function Calendar() {
     setTasks([newTask, ...tasks]);
   };
 
+  const handleToggleTask = (id) => {
+    setTasks(tasks.map(task => 
+      task.id === id
+        ? { ...task, completed: !task.completed } //Если id совпадает = меняем completed на противоположное
+        : task // иначе оставляем задачу без изменений
+    ))
+  }
+
   return (
     <div className="app-container">
       <header className="header">
@@ -88,9 +96,9 @@ function Calendar() {
         </button>
       </div>
       {tasks.length === 0 ? (
-        <p className="empty-text">Здесь пока пусто...</p>
+        <p className="empty-text">Задач на сегодня пока нет...</p>
       ) : (
-        <TaskList tasks={tasks} />
+        <TaskList tasks={tasks} onToggle={handleToggleTask} />
       )}
 
       <nav className="nav-bar">

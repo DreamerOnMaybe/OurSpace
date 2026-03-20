@@ -58,6 +58,7 @@ function Home() {
       localStorage.setItem("habits", JSON.stringify([]));
       setHabits([]);
       setGlasses(0);
+      localStorage.setItem('savedGlasses', JSON.stringify(0))
     } else if (savedHabits && savedGlasses) {
       setHabits(JSON.parse(savedHabits));
       setGlasses(JSON.parse(savedGlasses));

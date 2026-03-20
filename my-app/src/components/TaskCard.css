@@ -1,0 +1,42 @@
+.task-card {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    border: 2px solid var(--colors-brand-primary-100);
+    padding: 10px 15px;
+    border-radius: 16px;
+    transition: all 0.2s ease;
+}
+
+.task-card.completed {
+    background: var(--colors-brand-primary-100);
+}
+
+.task-card.completed .custom-checkbox{
+    border-color: #fff;
+}
+
+.task-card.completed .custom-checkbox::after {
+    content: '✓';
+    color: #fff;
+    font-size: 14px;
+}
+
+.task-card.completed span {
+    text-decoration: line-through;
+    color: var(--text-text-neutral-0);
+}
+
+.custom-checkbox {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: 2px solid var(--colors-brand-primary-100);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}

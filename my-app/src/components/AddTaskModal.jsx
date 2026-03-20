@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-import './AddTaskModal.css'
 
 
 function AddTaskModal ({onAdd, onClose}) {

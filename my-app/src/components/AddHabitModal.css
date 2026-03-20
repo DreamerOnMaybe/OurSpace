@@ -56,9 +56,11 @@
     transition: all 0.2s ease;
 }
 
-input {
-    padding: 5px;
-    border-radius: 8px;
+.modal-footer input, .modal input {
+    margin-bottom: 20px;
+    font-size: 18px;
+    padding: 10px;
+    border-radius: 16px;
     outline: none;
     border: none;
     width: 100%;
@@ -66,7 +68,8 @@ input {
 }
 
 .add-modal-btns {
-    margin-top: 20px;
+
+    margin-top: auto;
     display: flex;gap: 15px;
 }
 
