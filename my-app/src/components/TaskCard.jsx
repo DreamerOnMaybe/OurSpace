@@ -4,7 +4,7 @@ import './TaskCard.css'
 
 function TaskCard({ task, onToggle }) {
     return (
-        <div className={`task-card ${task.completed ? 'completed' : ''}`} onClick={() => onToggle(task.id)}>
+        <div className={`task-card task-item ${task.completed ? 'completed' : ''}`} onClick={() => onToggle(task.id)}>
             <span>{task.text}</span>
             <div className="custom-checkbox"></div>
         </div>

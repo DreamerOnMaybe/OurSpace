@@ -68,7 +68,7 @@
 }
 
 .add-modal-btns {
-
+    justify-content: space-around;
     margin-top: auto;
     display: flex;gap: 15px;
 }

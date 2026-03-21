@@ -71,6 +71,14 @@ function Home() {
     localStorage.setItem("savedGlasses", JSON.stringify(glasses));
   }, [habits, isLoaded, glasses]);
 
+  const handleToggleHabit = (id) => {
+    setHabits(habits.map(habit => 
+      habit.id === id
+        ? { ...habit, completed: !habit.completed } //Если id совпадает = меняем completed на противоположное
+        : habit // иначе оставляем привычку без изменений
+    ))
+  }
+
   return (
     <div className="app-container">
       <header className="header">
@@ -191,7 +199,7 @@ function Home() {
       {habits.length === 0 ? (
         <p className="empty-text">Здесь пока пусто...</p>
       ) : (
-        <HabitList habits={habits} />
+        <HabitList habits={habits} onToggle={handleToggleHabit}/>
       )}
 
       <nav className="nav-bar">

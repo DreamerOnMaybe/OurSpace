@@ -2,11 +2,11 @@ import React from "react"
 import HabitCard from "./HabitCard";
 import './HabitCard.css'
 
-function HabitList({ habits }) {
+function HabitList({ habits, onToggle }) {
     return (
         <div className="habit-list">
             {habits.map(habit => (
-                <HabitCard key={habit.id} habit={habit} />
+                <HabitCard key={habit.id} habit={habit} onToggle={onToggle}/>
             ))}
         </div>
     )
