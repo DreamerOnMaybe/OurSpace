@@ -1,14 +1,24 @@
-import React from "react"
-import './TaskCard.css'
-
+import React, { useState } from "react";
+import "./TaskCard.css";
 
 function TaskCard({ task, onToggle }) {
-    return (
-        <div className={`task-card task-item ${task.completed ? 'completed' : ''}`} onClick={() => onToggle(task.id)}>
-            <span>{task.text}</span>
-            <div className="custom-checkbox"></div>
+  const [isExpanded, setIsExpanded] = useState(false);
+  return (
+    <div
+      className={`task-card task-item ${task.completed ? "completed" : ""} ${isExpanded ? "expanded" : ""}`} onClick={() => onToggle(task.id)}>
+      <div className="task-top">
+        <span className={isExpanded ? "" : "task-text"}>{task.text}</span>
+        <div className="task-right">
+          
+          {task.text.length > 20 && (
+            <button onClick={(e) => { e.stopPropagation(); setIsExpanded(!isExpanded) }}>
+              {isExpanded ? "▲" : "▼"}
+            </button>
+          )}
+          <div className="custom-checkbox"></div>
         </div>
-    )
+      </div>
+    </div>
+  );
 }
-
-export default TaskCard
+export default TaskCard;

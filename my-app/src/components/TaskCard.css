@@ -1,8 +1,8 @@
 .task-card {
-    margin-top: 15px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    margin-top: 15px;
+    overflow: hidden;
     font-size: 18px;
     border: 2px solid var(--colors-brand-primary-100);
     padding: 10px 15px;
@@ -10,8 +10,52 @@
     transition: all 0.2s ease;
 }
 
+.task-card.expanded .task-top {
+    flex-wrap: wrap;
+}
+
+.task-card.expanded span {
+    word-break: break-word;
+    white-space: normal;
+    width: 80%;
+}
+
+.task-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+}
+
+.task-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.task-right button {
+    border: none;
+    background: none;
+    font-size: 18px;
+    color: var(--colors-brand-primary-100);
+}
+
+.task-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+    min-width: 0;
+    flex: 1;
+}
+
 .task-card.completed {
     background: var(--colors-brand-primary-100);
+}
+
+.task-card.completed button {
+    color: #fff;
 }
 
 .task-card.completed .custom-checkbox{
