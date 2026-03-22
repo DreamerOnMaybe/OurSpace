@@ -55,7 +55,8 @@ function AddHabitModal({onAdd, onClose}) {
                         type="number"
                         placeholder="Время в минутах"
                         value={duration}
-                        onChange={e => setDuration(e.target.value)}
+                        onChange={e => e.target.value.length <= 3 && setDuration(e.target.value)}
+                        maxLength={3}
                     />
 
                     <div className="add-modal-btns">
