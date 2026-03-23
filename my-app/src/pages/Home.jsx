@@ -22,11 +22,11 @@ const apiKey = import.meta.env.VITE_API_KEY;
 const currentUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric&lang=ru`;
 
 function Home() {
-  const [glasses, setGlasses] = useState(0);
-  const liters = (glasses * 0.2).toFixed(2);
-  const maxGlasses = 10;
-  const progress = 282.7 - (282.7 * glasses) / maxGlasses;
-  const [weather, setWeather] = useState(null);
+  const [glasses, setGlasses] = useState(0); // количество выпитых стаканов, начальное значение 0
+  const liters = (glasses * 0.2).toFixed(2); // переводим стаканы в литры, toFixed(2) - два знака после запятой
+  const maxGlasses = 10; // максимум 10 стаканов = 2 литра
+  const progress = 282.7 - (282.7 * glasses) / maxGlasses; // вычисляем strokeDashoffset для SVG круга
+  const [weather, setWeather] = useState(null); // данные погоды, null пока не загрузилась
   const recomendation =
     weather?.main.temp >= 0
       ? "Хорошая погода для прогулки ⛅️"
@@ -40,35 +40,35 @@ function Home() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    fetch(currentUrl)
-      .then((res) => res.json())
-      .then((data) => setWeather(data));
+    fetch(currentUrl) // делаем запрос к API
+      .then((res) => res.json()) // преобразуем ответ в JSON
+      .then((data) => setWeather(data)); // записываем данные в state
   }, []);
   useEffect(() => {
-    //Достаём сохранённые привычки и дату
-    const savedHabits = localStorage.getItem("habits");
+    //Достаём сохранённые привычки, стаканы и дату
+    const savedHabits = localStorage.getItem("habits"); 
     const savedGlasses = localStorage.getItem("savedGlasses");
     const savedDate = localStorage.getItem("date");
 
     // Получаем сегодняшнюю дату
     const today = new Date().toLocaleDateString();
 
-    if (savedDate !== today) {
-      localStorage.setItem("date", today);
-      localStorage.setItem("habits", JSON.stringify([]));
-      setHabits([]);
-      setGlasses(0);
+    if (savedDate !== today) { // если день сменился
+      localStorage.setItem("date", today); // сохраняем новую дату
+      localStorage.setItem("habits", JSON.stringify([])); // сбрасываем привычки
+      setHabits([]); // обновляем привычки
+      setGlasses(0); // сбрасываем стканы
       localStorage.setItem('savedGlasses', JSON.stringify(0))
-    } else if (savedHabits && savedGlasses) {
-      setHabits(JSON.parse(savedHabits));
-      setGlasses(JSON.parse(savedGlasses));
+    } else if (savedHabits && savedGlasses) { // если есть сохранённые привычки и стаканы
+      setHabits(JSON.parse(savedHabits)); // загружаем привычки
+      setGlasses(JSON.parse(savedGlasses)); // загружаем стаканы
     }
-    setIsLoaded(true);
+    setIsLoaded(true); // отмечаем что загрузка завершена
   }, []);
   useEffect(() => {
     if (!isLoaded) return;
-    localStorage.setItem("habits", JSON.stringify(habits));
-    localStorage.setItem("savedGlasses", JSON.stringify(glasses));
+    localStorage.setItem("habits", JSON.stringify(habits)); // сохраняем привычки
+    localStorage.setItem("savedGlasses", JSON.stringify(glasses)); // сохраняем стаканы
   }, [habits, isLoaded, glasses]);
 
   const handleToggleHabit = (id) => {

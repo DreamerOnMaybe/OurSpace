@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import "../App.css";
 import './Calendar.css'
 import AddTaskModal  from "../components/AddTaskModal";
@@ -42,39 +42,50 @@ function Calendar() {
 
   const [activeTab, setActiveTab] = useState('tasks') // объявление переменной состояния и функции для её обновления
 
+  const [tasks, setTasks] = useState(() => {
+    const savedTasks = localStorage.getItem('tasks')
+    return savedTasks ? JSON.parse(savedTasks) : {}
+  }) // вместо начального значения передаём функцию. она выполняется один раз при загрузке - достаёт задачи из localStorage. если там что-то есть - парсим из строки в объект, иначе возвращаем пустой объект
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [tasks, setTasks] = useState({});
   const handleAddTasks = (newTask) => {
-    const dataKey = formatDate(selectedDay)
-    const dayTasks = tasks[dataKey] || []
+    const dataKey = formatDate(selectedDay) // получаем ключ выбранного дня
+    const dayTasks = tasks[dataKey] || [] // берем задачи этого дня, если их нет - пустой массив
     setTasks({
-      ...tasks, 
-      [dataKey]: [newTask, ...dayTasks]
+      ...tasks, // копируем все остальные дни без изменений
+      [dataKey]: [newTask, ...dayTasks] // для выбранного дня - добавляем новую задачу в начало
     });
   };
 
   const handleToggleTask = (id) => {
-    const dateKey = formatDate(selectedDay)
-    const dayTasks = tasks[dateKey] || []
+    const dateKey = formatDate(selectedDay) // ключ выбранного дня
+    const dayTasks = tasks[dateKey] || [] // задачи этого дня
     setTasks({
-      ...tasks,
+      ...tasks, // остальные дни не трогаем
       [dateKey]: dayTasks.map(task => 
         task.id === id
-          ? { ...task, completed: !task.completed }
-          : task
+          ? { ...task, completed: !task.completed } // нашли нужную задачу - переключаем completed
+          : task // остальные задачи не трогаем
       )
     })
   }
 
   const formatDate = (date) => {
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear()
-    return `${day}.${month}.${year}`
+    const day = date.getDate().toString().padStart(2, '0') // число месяца, padStart добавляет 0 если число однозначное
+    const month = (date.getMonth() + 1).toString().padStart(2, '0') // месяц +1 потому что getMonth() считает с 0
+    const year = date.getFullYear() // год
+    return `${day}.${month}.${year}` // собираем строку 
   }
 
-  const dateKey = formatDate(selectedDay)
-  const currentDayTasks = tasks[dateKey] || []
+  const dateKey = formatDate(selectedDay) // ключ выбранного дня
+  const currentDayTasks = tasks[dateKey] || [] // задачи выбранного дня, или пустой массив
+
+  useEffect(() => {
+    localStorage.setItem('tasks', JSON.stringify(tasks)) // при каждом изменении tasks сохраняем в localStorage
+  }, [tasks]) // следим за tasks
+
+  const today = new Date()
+  const todayFormatted = formatDate(today)
 
   return (
     <div className="app-container">
@@ -82,7 +93,7 @@ function Calendar() {
         <button className="grey-btn" onClick={() => navigate('/')}>
           <img src={backBtn} alt="Назад" />
         </button>
-        <h2>Сегодня, 19.03</h2>
+        <h2>Сегодня, {todayFormatted.slice(0, 5)}</h2>
         <div className="grey-btn">
           <img src={calendar} alt="Профиль" />
         </div>
