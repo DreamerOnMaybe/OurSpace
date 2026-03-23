@@ -87,6 +87,8 @@ function Calendar() {
   const today = new Date()
   const todayFormatted = formatDate(today)
 
+  
+
   return (
     <div className="app-container">
       <header className="header">
@@ -100,16 +102,22 @@ function Calendar() {
       </header>
 
       <div className="week-strip">
-        {weekDays.map((day, index) => (
-          <button
-            key={index}
-            className={`day-btn ${selectedDay.toDateString() === day.toDateString() ? 'active' : ''}`}
-            onClick={() => setSelectedDay(day)}
-          >
-            <span>{dayNames[index]}</span>
-            <span>{day.getDate()}</span>
-          </button>
-        ))}
+        {weekDays.map((day, index) => {
+          const dayKey = formatDate(day)
+          const hasTasks = tasks[dayKey]?.length > 0
+
+          return (
+            <button
+              key={index}
+              className={`day-btn ${selectedDay.toDateString() === day.toDateString() ? 'active' : ''}`}
+              onClick={() => setSelectedDay(day)}
+            >
+              <span>{dayNames[index]}</span>
+              <span>{day.getDate()}</span>
+              {hasTasks && <span className='day-dot'></span>}
+            </button>
+          )
+        })}
       </div>
 
       <div className="tabs">
