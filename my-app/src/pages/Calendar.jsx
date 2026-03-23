@@ -43,18 +43,38 @@ function Calendar() {
   const [activeTab, setActiveTab] = useState('tasks') // объявление переменной состояния и функции для её обновления
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState({});
   const handleAddTasks = (newTask) => {
-    setTasks([newTask, ...tasks]);
+    const dataKey = formatDate(selectedDay)
+    const dayTasks = tasks[dataKey] || []
+    setTasks({
+      ...tasks, 
+      [dataKey]: [newTask, ...dayTasks]
+    });
   };
 
   const handleToggleTask = (id) => {
-    setTasks(tasks.map(task => 
-      task.id === id
-        ? { ...task, completed: !task.completed } //Если id совпадает = меняем completed на противоположное
-        : task // иначе оставляем задачу без изменений
-    ))
+    const dateKey = formatDate(selectedDay)
+    const dayTasks = tasks[dateKey] || []
+    setTasks({
+      ...tasks,
+      [dateKey]: dayTasks.map(task => 
+        task.id === id
+          ? { ...task, completed: !task.completed }
+          : task
+      )
+    })
   }
+
+  const formatDate = (date) => {
+    const day = date.getDate().toString().padStart(2, '0')
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const year = date.getFullYear()
+    return `${day}.${month}.${year}`
+  }
+
+  const dateKey = formatDate(selectedDay)
+  const currentDayTasks = tasks[dateKey] || []
 
   return (
     <div className="app-container">
@@ -95,11 +115,11 @@ function Calendar() {
           Заметки
         </button>
       </div>
-      {tasks.length === 0 ? (
+      {currentDayTasks.length === 0 ? 
         <p className="empty-text">Задач на сегодня пока нет...</p>
-      ) : (
-        <TaskList tasks={tasks} onToggle={handleToggleTask} />
-      )}
+        : 
+        <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} />
+      }
 
       <nav className="nav-bar">
         <button className="nav-item" onClick={() => navigate('/')}>
