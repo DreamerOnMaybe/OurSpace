@@ -126,11 +126,13 @@ function Calendar() {
           Заметки
         </button>
       </div>
-      {currentDayTasks.length === 0 ? 
-        <p className="empty-text">Задач на сегодня пока нет...</p>
-        : 
-        <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} />
-      }
+      {activeTab === 'tasks' ? ( // если активная вкладка tasks то показываем список задач, иначе - список заметок, пока их нету, пустая страница
+        currentDayTasks.length === 0
+          ? <p className='empty-text'>Задач на сегодня пока нет...</p>
+          : <TaskList tasks={currentDayTasks} onToggle={handleAddTasks} />
+      ) : (
+        <p className='empty-text'>Заметок пока нет...</p>
+      )}
 
       <nav className="nav-bar">
         <button className="nav-item" onClick={() => navigate('/')}>
