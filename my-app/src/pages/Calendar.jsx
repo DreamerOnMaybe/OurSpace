@@ -110,15 +110,15 @@ function Calendar() {
   const today = new Date()
   const todayFormatted = formatDate(today)
 
-  const [isMonthOpen, setIsMonthOpen] = useState(false)
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [isMonthOpen, setIsMonthOpen] = useState(false) // useState для открытия календаря на месяц
+  const [currentMonth, setCurrentMonth] = useState(new Date()) // текущий месяц
 
   const  prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)) // функция  для переключения на предыдущий месяц
   }
 
   const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)) // функция для переключения на следующий месяц
   }
 
   return (
@@ -152,22 +152,35 @@ function Calendar() {
         })}
       </div>
 
-      {isMonthOpen && (
+      {isMonthOpen && ( // функция открытия календаря на месяц
         <div className="month-calendar">
           <div className="month-header">
-            <button onClick={prevMonth}>‹</button>
-            <span>{currentMonth.toLocaleString('ru', { month: 'long', year: 'numeric' })}</span>
-            <button onClick={nextMonth}>›</button>
+            {/* получение текущего месяца и года, и кнопки переключения */}
+            <button className='toggle-month' onClick={prevMonth}>‹</button> 
+            <span>{currentMonth.toLocaleString('ru', { month: 'long', year: 'numeric' })}</span> 
+            <button className='toggle-month' onClick={nextMonth}>›</button>
           </div>
-          <div className="month-grid">
+          {/* сетка дней */}
+          <div className="month-grid"> 
             {dayNames.map((name, index) => (
-              <div key={index} className="month-day-name">{name}</div>
+              <div key={index} className="month-day-name">{name}</div> // проходимся по массиву дней неделип и отрисовываем их
             ))}
-            {getMonthDays(currentMonth).map((day, index) => (
-              day === null
-                ? <div key={index}></div>
-                : <button key={index}>{day.getDate()}</button>
-            ))}
+            {getMonthDays(currentMonth).map((day, index) => { // получаем массив дней месяца
+              if (day === null) return <div key={index}></div> // пропускаем пустые ячейки
+              const dayKey = formatDate(day) 
+              const hasTasks = tasks[dayKey]?.length > 0
+              return (
+                <button 
+                    onClick={() => setSelectedDay(day)} 
+                    className={`day-on-calendar 
+                      ${selectedDay.toDateString() === day.toDateString() ? 'active' : ''}
+                      ${hasTasks ? 'has-tasks' : ''}`}
+                    key={index}
+                  >
+                    <span>{day.getDate()}</span>
+                  </button>
+              )
+            })}
           </div>
         </div>
       )}
