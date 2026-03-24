@@ -37,6 +37,29 @@ function Calendar() {
     // i начинается с 0 и увеличивается до 6 — семь раз. Каждый раз создаём новый день от понедельника + i дней, и пушим в массив. Получаем 7 дней от понедельника до воскресенья.
     return days
   }
+
+  const getMonthDays = (date) => {
+    const year = date.getFullYear() // получаем текущий год
+    const month = date.getMonth() // получаем текущий месяц
+
+    const firstDay = new Date(year, month, 1) // получаем первый день месяца
+    const lastDay = new Date(year, month + 1, 0) // получаем последний день месяца
+
+    const startOffset = firstDay.getDay() === 0 ? 6 : firstDay.getDay() -1 // getDay возвращает день недели где 0=воскресенье, 1=понедельник, 6=суббота
+
+    const days = [] // создаём массив дней месяца
+
+    for (let i = 0; i < startOffset; i++) {
+      days.push(null) // ставим пустые ячейки если месяц начинается не с понедельника
+    }
+
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      days.push(new Date(year, month, d)) // заполняем ячейки днями
+    }
+
+    return days
+  }
+
   const weekDays = getWeekDays()
   const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 
@@ -87,7 +110,16 @@ function Calendar() {
   const today = new Date()
   const todayFormatted = formatDate(today)
 
-  
+  const [isMonthOpen, setIsMonthOpen] = useState(false)
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+
+  const  prevMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
+  }
+
+  const nextMonth = () => {
+    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
+  }
 
   return (
     <div className="app-container">
@@ -96,9 +128,9 @@ function Calendar() {
           <img src={backBtn} alt="Назад" />
         </button>
         <h2>Сегодня, {todayFormatted.slice(0, 5)}</h2>
-        <div className="grey-btn">
-          <img src={calendar} alt="Профиль" />
-        </div>
+        <button className="grey-btn" onClick={() => setIsMonthOpen(!isMonthOpen)}>
+          <img src={calendar} alt="Календарь" />
+        </button>
       </header>
 
       <div className="week-strip">
@@ -120,6 +152,26 @@ function Calendar() {
         })}
       </div>
 
+      {isMonthOpen && (
+        <div className="month-calendar">
+          <div className="month-header">
+            <button onClick={prevMonth}>‹</button>
+            <span>{currentMonth.toLocaleString('ru', { month: 'long', year: 'numeric' })}</span>
+            <button onClick={nextMonth}>›</button>
+          </div>
+          <div className="month-grid">
+            {dayNames.map((name, index) => (
+              <div key={index} className="month-day-name">{name}</div>
+            ))}
+            {getMonthDays(currentMonth).map((day, index) => (
+              day === null
+                ? <div key={index}></div>
+                : <button key={index}>{day.getDate()}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="tabs">
         <button
           className={activeTab === 'tasks' ? 'active' : ''} // тут проверка если activeTab равен значению tasks то добавляется класс active, если нет - то класса нет. то же самое и со второй кнопкой
@@ -137,7 +189,7 @@ function Calendar() {
       {activeTab === 'tasks' ? ( // если активная вкладка tasks то показываем список задач, иначе - список заметок, пока их нету, пустая страница
         currentDayTasks.length === 0
           ? <p className='empty-text'>Задач на сегодня пока нет...</p>
-          : <TaskList tasks={currentDayTasks} onToggle={handleAddTasks} />
+          : <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} />
       ) : (
         <p className='empty-text'>Заметок пока нет...</p>
       )}
