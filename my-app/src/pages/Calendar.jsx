@@ -4,7 +4,6 @@ import "../App.css";
 import './Calendar.css'
 import AddTaskModal  from "../components/AddTaskModal";
 import TaskList from "../components/TaskList";
-import AddNoteModal from '../components/AddNoteModal';
 
 import backBtn from "../assets/arrow-left-long.svg";
 import calendar from "../assets/calendar.svg";
@@ -81,6 +80,15 @@ function Calendar() {
     });
   };
 
+  const handleDeleteTasks = (id) => {
+    const dateKey = formatDate(selectedDay) 
+    const dayTasks = tasks[dateKey] || []
+    setTasks({
+      ...tasks, 
+      [dateKey]:dayTasks.filter(task => task.id !== id)
+    })
+  }
+
   const [notes, setNotes] = useState(() => {
     const savedNotes = localStorage.getItem('notes')
     return savedNotes ? JSON.parse(savedNotes) : {}
@@ -90,7 +98,6 @@ function Calendar() {
     localStorage.setItem('notes', JSON.stringify(notes))
   }, [notes])
 
-  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const handleAddNote = (newNote) => {
     const dataKey = formatDate(selectedDay)
     setNotes({
@@ -157,6 +164,7 @@ function Calendar() {
         {weekDays.map((day, index) => {
           const dayKey = formatDate(day)
           const hasTasks = tasks[dayKey]?.length > 0
+          const hasNotes = !!notes[dayKey]
 
           return (
             <button
@@ -167,6 +175,7 @@ function Calendar() {
               <span>{dayNames[index]}</span>
               <span>{day.getDate()}</span>
               {hasTasks && <span className='day-dot'></span>}
+              {hasNotes && <span className='day-dot'></span>}
             </button>
           )
         })}
@@ -189,12 +198,15 @@ function Calendar() {
               if (day === null) return <div key={index}></div> // пропускаем пустые ячейки
               const dayKey = formatDate(day) 
               const hasTasks = tasks[dayKey]?.length > 0
+              const hasNotes = !!notes[dayKey]
               return (
                 <button 
                     onClick={() => setSelectedDay(day)} 
                     className={`day-on-calendar 
                       ${selectedDay.toDateString() === day.toDateString() ? 'active' : ''}
-                      ${hasTasks ? 'has-tasks' : ''}`}
+                      ${hasTasks ? 'has-tasks' : ''}
+                      ${hasNotes ? 'has-tasks' : ''}
+                      `}
                     key={index}
                   >
                     <span>{day.getDate()}</span>
@@ -222,11 +234,14 @@ function Calendar() {
       {activeTab === 'tasks' ? ( // если активная вкладка tasks то показываем список задач, иначе - список заметок, пока их нету, пустая страница
         currentDayTasks.length === 0
           ? <p className='empty-text'>Задач на сегодня пока нет...</p>
-          : <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} />
+          : <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} onDelete={handleDeleteTasks}/>
       ) : (
-        currentDayNotes.length === 0
-          ? <p className='empty-text'>Заметок пока нет...</p>
-          : <p>{currentDayNotes}</p>
+        <textarea
+          className='note-textarea'
+          value={currentDayNotes}
+          onChange={e => handleAddNote(e.target.value)}
+          placeholder='Напишите заметку'
+        ></textarea>
       )}
 
       <nav className="nav-bar">
@@ -236,7 +251,7 @@ function Calendar() {
         <button className="nav-item">
           <img src={user} alt="Кнопка в профиль" />
         </button>
-        <button className="nav-item plus" onClick={() => activeTab === 'tasks' ? setIsModalOpen(true) : setIsNoteModalOpen(true)}>
+        <button className="nav-item plus" onClick={() => activeTab === 'tasks' ? setIsModalOpen(true) : ''}>
           <img src={plus} alt="Кнопка добавить"/>
         </button>
         <button className="nav-item active">
@@ -250,12 +265,6 @@ function Calendar() {
         <AddTaskModal
           onAdd={handleAddTasks}
           onClose={() => setIsModalOpen(false)}
-        />
-      )}
-      {isNoteModalOpen && (
-        <AddNoteModal 
-          onAdd={handleAddNote}
-          onClose={() => setIsNoteModalOpen(false)}
         />
       )}
     </div>
