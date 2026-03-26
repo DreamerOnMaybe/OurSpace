@@ -4,6 +4,7 @@ import "../App.css";
 import './Calendar.css'
 import AddTaskModal  from "../components/AddTaskModal";
 import TaskList from "../components/TaskList";
+import AddNoteModal from '../components/AddNoteModal';
 
 import backBtn from "../assets/arrow-left-long.svg";
 import calendar from "../assets/calendar.svg";
@@ -80,6 +81,24 @@ function Calendar() {
     });
   };
 
+  const [notes, setNotes] = useState(() => {
+    const savedNotes = localStorage.getItem('notes')
+    return savedNotes ? JSON.parse(savedNotes) : {}
+  })
+
+  useEffect(() => {
+    localStorage.setItem('notes', JSON.stringify(notes))
+  }, [notes])
+
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const handleAddNote = (newNote) => {
+    const dataKey = formatDate(selectedDay)
+    setNotes({
+      ...notes,
+      [dataKey]: newNote
+    })
+  }
+
   const handleToggleTask = (id) => {
     const dateKey = formatDate(selectedDay) // ключ выбранного дня
     const dayTasks = tasks[dateKey] || [] // задачи этого дня
@@ -102,6 +121,7 @@ function Calendar() {
 
   const dateKey = formatDate(selectedDay) // ключ выбранного дня
   const currentDayTasks = tasks[dateKey] || [] // задачи выбранного дня, или пустой массив
+  const currentDayNotes = notes[dateKey] || ''
 
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks)) // при каждом изменении tasks сохраняем в localStorage
@@ -204,7 +224,9 @@ function Calendar() {
           ? <p className='empty-text'>Задач на сегодня пока нет...</p>
           : <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} />
       ) : (
-        <p className='empty-text'>Заметок пока нет...</p>
+        currentDayNotes.length === 0
+          ? <p className='empty-text'>Заметок пока нет...</p>
+          : <p>{currentDayNotes}</p>
       )}
 
       <nav className="nav-bar">
@@ -214,7 +236,7 @@ function Calendar() {
         <button className="nav-item">
           <img src={user} alt="Кнопка в профиль" />
         </button>
-        <button className="nav-item plus" onClick={() => setIsModalOpen(true)}>
+        <button className="nav-item plus" onClick={() => activeTab === 'tasks' ? setIsModalOpen(true) : setIsNoteModalOpen(true)}>
           <img src={plus} alt="Кнопка добавить"/>
         </button>
         <button className="nav-item active">
@@ -228,6 +250,12 @@ function Calendar() {
         <AddTaskModal
           onAdd={handleAddTasks}
           onClose={() => setIsModalOpen(false)}
+        />
+      )}
+      {isNoteModalOpen && (
+        <AddNoteModal 
+          onAdd={handleAddNote}
+          onClose={() => setIsNoteModalOpen(false)}
         />
       )}
     </div>
