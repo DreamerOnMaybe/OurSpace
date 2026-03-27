@@ -1,11 +1,33 @@
 import React, { useState } from "react";
+import { auth } from '../firebase'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import "./Auth.css";
+import { useNavigate } from "react-router-dom";
 
 function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password)
+      } else {
+        await createUserWithEmailAndPassword(auth, email, password)
+      }
+      navigate('/')
+    } catch (error) {
+      console.log(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="login-container">   
@@ -23,7 +45,7 @@ function Auth() {
           Регистрация
         </button>
       </div>
-      <form id="registerForm">
+      <form id="registerForm" onSubmit={handleSubmit}>
         {!isLogin && 
           <input 
             type="text" 
@@ -50,8 +72,8 @@ function Auth() {
           placeholder="Введите пароль"
         />
 
-        <button type="submit">
-          {isLogin ? "Войти" : "Зарегистрироваться"}
+        <button type="submit" disabled={loading}>
+          {loading ? 'Загрузка...' : isLogin ? "Войти" : "Зарегистрироваться"}
         </button>
       </form>
     </div>
