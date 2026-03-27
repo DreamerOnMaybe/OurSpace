@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 .env
+firebase.js
 dist
 dist-ssr
 *.local
