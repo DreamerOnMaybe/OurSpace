@@ -31,6 +31,7 @@
 .modal h3 {
     font-size: 24px;
     color: var(--text-text-neutral-0);
+    text-align: center;
 }
 
 .habit-options {

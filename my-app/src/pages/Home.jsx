@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 import "../App.css";
 import HabitList from "../components/HabitList";
 import AddHabitModal from "../components/AddHabitModal";
@@ -37,7 +37,7 @@ function Home() {
   const handleAddHabit = (newHabit) => {
     setHabits([newHabit, ...habits]);
   };
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(currentUrl) // делаем запрос к API
@@ -46,20 +46,22 @@ function Home() {
   }, []);
   useEffect(() => {
     //Достаём сохранённые привычки, стаканы и дату
-    const savedHabits = localStorage.getItem("habits"); 
+    const savedHabits = localStorage.getItem("habits");
     const savedGlasses = localStorage.getItem("savedGlasses");
     const savedDate = localStorage.getItem("date");
 
     // Получаем сегодняшнюю дату
     const today = new Date().toLocaleDateString();
 
-    if (savedDate !== today) { // если день сменился
+    if (savedDate !== today) {
+      // если день сменился
       localStorage.setItem("date", today); // сохраняем новую дату
       localStorage.setItem("habits", JSON.stringify([])); // сбрасываем привычки
       setHabits([]); // обновляем привычки
       setGlasses(0); // сбрасываем стканы
-      localStorage.setItem('savedGlasses', JSON.stringify(0))
-    } else if (savedHabits && savedGlasses) { // если есть сохранённые привычки и стаканы
+      localStorage.setItem("savedGlasses", JSON.stringify(0));
+    } else if (savedHabits && savedGlasses) {
+      // если есть сохранённые привычки и стаканы
       setHabits(JSON.parse(savedHabits)); // загружаем привычки
       setGlasses(JSON.parse(savedGlasses)); // загружаем стаканы
     }
@@ -72,12 +74,15 @@ function Home() {
   }, [habits, isLoaded, glasses]);
 
   const handleToggleHabit = (id) => {
-    setHabits(habits.map(habit => 
-      habit.id === id
-        ? { ...habit, completed: !habit.completed } //Если id совпадает = меняем completed на противоположное
-        : habit // иначе оставляем привычку без изменений
-    ))
-  }
+    setHabits(
+      habits.map(
+        (habit) =>
+          habit.id === id
+            ? { ...habit, completed: !habit.completed } //Если id совпадает = меняем completed на противоположное
+            : habit, // иначе оставляем привычку без изменений
+      ),
+    );
+  };
 
   return (
     <div className="app-container">
@@ -134,34 +139,38 @@ function Home() {
             <img src={water} alt="Вода" />
           </div>
           <div className="water-statistics">
-            <svg width="100" height="100" viewBox="0 0 100 100">
-              {/* Фоновый круг */}
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                stroke="rgba(255,255,255,0.2)"
-                strokeWidth="8"
-                fill="none"
-              />
-              {/* Круг прогресса */}
-              <circle
-                className="water-progress"
-                cx="50"
-                cy="50"
-                r="45"
-                stroke="white"
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray="282.7"
-                strokeDashoffset={progress} /* Это число меняет длину полоски */
-                strokeLinecap="round"
-                transform="rotate(-90 50 50)" /* Разворачиваем, чтобы начиналось сверху */
-              />
-            </svg>
-            <div className="water-amount">
-              <p>{liters}</p>
-              <span>Литров</span>
+            <div className="water-circle-container">
+              <svg width="100" height="100" viewBox="0 0 100 100">
+                {/* Фоновый круг */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  stroke="rgba(255,255,255,0.2)"
+                  strokeWidth="8"
+                  fill="none"
+                />
+                {/* Круг прогресса */}
+                <circle
+                  className="water-progress"
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  stroke="white"
+                  strokeWidth="8"
+                  fill="none"
+                  strokeDasharray="282.7"
+                  strokeDashoffset={
+                    progress
+                  } /* Это число меняет длину полоски */
+                  strokeLinecap="round"
+                  transform="rotate(-90 50 50)" /* Разворачиваем, чтобы начиналось сверху */
+                />
+              </svg>
+              <div className="water-amount">
+                <p>{liters}</p>
+                <span>Литров</span>
+              </div>
             </div>
             <div className="water-counter">
               <button onClick={() => glasses > 0 && setGlasses(glasses - 1)}>
@@ -199,7 +208,7 @@ function Home() {
       {habits.length === 0 ? (
         <p className="empty-text">Здесь пока пусто...</p>
       ) : (
-        <HabitList habits={habits} onToggle={handleToggleHabit}/>
+        <HabitList habits={habits} onToggle={handleToggleHabit} />
       )}
 
       <nav className="nav-bar">
@@ -212,7 +221,7 @@ function Home() {
         <button className="nav-item plus" onClick={() => setIsModalOpen(true)}>
           <img src={plus} alt="Кнопка добавить" />
         </button>
-        <button className="nav-item" onClick={() => navigate('/calendar')}>
+        <button className="nav-item" onClick={() => navigate("/calendar")}>
           <img src={calendar} alt="Кнопка календарь" />
         </button>
         <button className="nav-item">

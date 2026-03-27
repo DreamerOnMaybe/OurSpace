@@ -37,6 +37,7 @@
 
 .header h2 {
   font-size: 20px;
+  text-align: center;
 }
 
 .grey-btn {
@@ -77,12 +78,13 @@
 .steps-container {
   position: relative;
   margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .steps-count {
-  font-size: 18px;
-  top: 24px;
-  left: 30px;
+  font-size: clamp(16px, 3vw, 18px);
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -97,7 +99,10 @@
 
 .water-statistics {
   margin: auto 0;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .water-statistics svg {
@@ -108,17 +113,27 @@
   font-weight: 700;
 }
 
+.water-circle-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
 .water-amount {
   position: absolute;
-  top: 35px;
-  left: 25px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: clamp(16px, 3vw, 18px);
 }
 
 .water-counter {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
+  font-size: clamp(16px, 3vw, 18px);
   font-weight: 600;
 }
 
