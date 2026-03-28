@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
+import { db } from '../firebase'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
 import "../App.css";
 import HabitList from "../components/HabitList";
 import AddHabitModal from "../components/AddHabitModal";
@@ -22,6 +27,16 @@ const apiKey = import.meta.env.VITE_API_KEY;
 const currentUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric&lang=ru`;
 
 function Home() {
+  const [userId, setUserId] = useState(null)
+  const [dataLoaded, setDataLoaded] = useState(false)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) setUserId(currentUser.uid)
+    })
+    return () => unsubscribe()
+  }, [])
+
   const [glasses, setGlasses] = useState(0); // количество выпитых стаканов, начальное значение 0
   const liters = (glasses * 0.2).toFixed(2); // переводим стаканы в литры, toFixed(2) - два знака после запятой
   const maxGlasses = 10; // максимум 10 стаканов = 2 литра
@@ -32,7 +47,6 @@ function Home() {
       ? "Хорошая погода для прогулки ⛅️"
       : "Сейчас прохладно ☁️";
   const [habits, setHabits] = useState([]);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAddHabit = (newHabit) => {
     setHabits([newHabit, ...habits]);
@@ -45,33 +59,45 @@ function Home() {
       .then((data) => setWeather(data)); // записываем данные в state
   }, []);
   useEffect(() => {
-    //Достаём сохранённые привычки, стаканы и дату
-    const savedHabits = localStorage.getItem("habits");
-    const savedGlasses = localStorage.getItem("savedGlasses");
-    const savedDate = localStorage.getItem("date");
+    if (!userId) return
 
-    // Получаем сегодняшнюю дату
-    const today = new Date().toLocaleDateString();
+    const loadData = async () => {
+      const docRef = doc(db, 'users', userId)
+      const docSnap = await getDoc(docRef)
 
-    if (savedDate !== today) {
-      // если день сменился
-      localStorage.setItem("date", today); // сохраняем новую дату
-      localStorage.setItem("habits", JSON.stringify([])); // сбрасываем привычки
-      setHabits([]); // обновляем привычки
-      setGlasses(0); // сбрасываем стканы
-      localStorage.setItem("savedGlasses", JSON.stringify(0));
-    } else if (savedHabits && savedGlasses) {
-      // если есть сохранённые привычки и стаканы
-      setHabits(JSON.parse(savedHabits)); // загружаем привычки
-      setGlasses(JSON.parse(savedGlasses)); // загружаем стаканы
+      const today = new Date().toLocaleDateString()
+
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        const savedDate = data.date
+
+        if (savedDate !== today) {
+          // день сменился - сбрасываем
+          setHabits([])
+          setGlasses(0)
+        } else {
+          // загружаем сохранённые данные
+          setHabits(data.habits || [])
+          setGlasses(data.glasses || 0)
+        }
+      }
+      setDataLoaded(true)
     }
-    setIsLoaded(true); // отмечаем что загрузка завершена
-  }, []);
+    loadData()
+  }, [userId]);
   useEffect(() => {
-    if (!isLoaded) return;
-    localStorage.setItem("habits", JSON.stringify(habits)); // сохраняем привычки
-    localStorage.setItem("savedGlasses", JSON.stringify(glasses)); // сохраняем стаканы
-  }, [habits, isLoaded, glasses]);
+    if (!userId || !dataLoaded) return
+
+    const saveData = async() => {
+      const today = new Date().toLocaleDateString()
+      await setDoc(doc(db, 'users', userId), {
+        habits,
+        glasses,
+        date: today
+      }, { merge: true })
+    }
+    saveData()
+  }, [habits, glasses, userId, dataLoaded])
 
   const handleToggleHabit = (id) => {
     setHabits(
@@ -84,6 +110,10 @@ function Home() {
     );
   };
 
+  const handleSignOut = async () => {
+    await signOut(auth)
+  }
+
   return (
     <div className="app-container">
       <header className="header">
@@ -91,9 +121,9 @@ function Home() {
           <img src={settings} alt="Назад" />
         </button>
         <h2>Сегодня</h2>
-        <div className="avatar">
+        <button className="avatar" type="submit" onClick={handleSignOut}>
           <img src={userAvatar} alt="Профиль" />
-        </div>
+        </button>
       </header>
 
       <div className="stats-grid">

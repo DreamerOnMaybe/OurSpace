@@ -1,9 +1,13 @@
-import { useNavigate } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import "../App.css";
 import './Calendar.css'
 import AddTaskModal  from "../components/AddTaskModal";
 import TaskList from "../components/TaskList";
+
+import { db, auth } from '../firebase'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { onAuthStateChanged } from 'firebase/auth'
 
 import backBtn from "../assets/arrow-left-long.svg";
 import calendar from "../assets/calendar.svg";
@@ -14,6 +18,14 @@ import bellNotification from "../assets/bell-notification.svg";
 
 function Calendar() {
   const navigate = useNavigate()
+
+  const [userId, setUserId] = useState(null)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) setUserId(currentUser.uid)
+    })
+    return () => unsubscribe()
+  }, [])
 
   const [selectedDay, setSelectedDay] = useState(new Date())
   //Получаем текущую неделю  getWeekDay стрелочная функция в которой мы получаем сегодняшний день в today и массив дней недели days
@@ -65,10 +77,7 @@ function Calendar() {
 
   const [activeTab, setActiveTab] = useState('tasks') // объявление переменной состояния и функции для её обновления
 
-  const [tasks, setTasks] = useState(() => {
-    const savedTasks = localStorage.getItem('tasks')
-    return savedTasks ? JSON.parse(savedTasks) : {}
-  }) // вместо начального значения передаём функцию. она выполняется один раз при загрузке - достаёт задачи из localStorage. если там что-то есть - парсим из строки в объект, иначе возвращаем пустой объект
+  const [tasks, setTasks] = useState({}) // вместо начального значения передаём функцию. она выполняется один раз при загрузке - достаёт задачи из localStorage. если там что-то есть - парсим из строки в объект, иначе возвращаем пустой объект
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAddTasks = (newTask) => {
@@ -88,15 +97,45 @@ function Calendar() {
       [dateKey]:dayTasks.filter(task => task.id !== id)
     })
   }
-
-  const [notes, setNotes] = useState(() => {
-    const savedNotes = localStorage.getItem('notes')
-    return savedNotes ? JSON.parse(savedNotes) : {}
-  })
+  const [dataLoaded, setDataLoaded] = useState(false)
+  const [notes, setNotes] = useState({})
 
   useEffect(() => {
-    localStorage.setItem('notes', JSON.stringify(notes))
-  }, [notes])
+    if (!userId) return //Ждём пока узнаем пользователя
+
+    const loadData = async () => {
+      const docRef = doc(db, 'users', userId)
+      const docSnap = await getDoc(docRef)
+      console.log('userId:', userId)
+      console.log('docSnap exists:', docSnap.exists())
+      console.log('data:', docSnap.data())
+      if (docSnap.exists()) {
+        setTasks(docSnap.data().tasks || {})
+        setNotes(docSnap.data().notes || {})
+        setDataLoaded(true)
+      }
+    }
+    loadData()
+  }, [userId])
+  useEffect(() => {
+    if (!userId || !dataLoaded) return
+
+    const saveTasks = async () => {
+      await setDoc(doc(db, 'users', userId), { tasks }, { merge: true })
+    }
+
+    saveTasks()
+  }, [tasks, userId, dataLoaded])
+
+  useEffect(() => {
+    if (!userId || !dataLoaded) return
+
+    const saveNotes = async () => {
+      await setDoc(doc(db, 'users', userId), { notes }, { merge: true })
+    }
+
+    saveNotes()
+  }, [notes, userId, dataLoaded])
 
   const handleAddNote = (newNote) => {
     const dataKey = formatDate(selectedDay)
@@ -129,10 +168,6 @@ function Calendar() {
   const dateKey = formatDate(selectedDay) // ключ выбранного дня
   const currentDayTasks = tasks[dateKey] || [] // задачи выбранного дня, или пустой массив
   const currentDayNotes = notes[dateKey] || ''
-
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks)) // при каждом изменении tasks сохраняем в localStorage
-  }, [tasks]) // следим за tasks
 
   const today = new Date()
   const todayFormatted = formatDate(today)

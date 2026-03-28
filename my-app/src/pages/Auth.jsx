@@ -55,6 +55,7 @@ function Auth() {
           />
         }
         <input 
+          className="email"
           type="email" 
           id="email" 
           name="email" 
@@ -64,6 +65,7 @@ function Auth() {
         />
 
         <input
+          className="password"
           type="password"
           id="password"
           name="password"
