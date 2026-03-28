@@ -1,4 +1,4 @@
-import { data, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import "../App.css";
 import './Calendar.css'
@@ -209,8 +209,7 @@ function Calendar() {
             >
               <span>{dayNames[index]}</span>
               <span>{day.getDate()}</span>
-              {hasTasks && <span className='day-dot'></span>}
-              {hasNotes && <span className='day-dot'></span>}
+              {(hasTasks || hasNotes) && <span className='day-dot'></span>}
             </button>
           )
         })}
