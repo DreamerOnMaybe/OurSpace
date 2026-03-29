@@ -4,6 +4,11 @@
     margin-top: 15px;
     overflow-x: auto;
     gap: 4px;
+    scrollbar-width: none;
+}
+
+.week-strip::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
 }
 
 .week-strip button {

@@ -145,20 +145,20 @@ function Home() {
               />
               {/* Круг прогресса */}
               <circle
-                cx="50"
-                cy="50"
-                r="45"
-                stroke="white"
-                strokeWidth="8"
-                fill="none"
-                strokeDasharray="282.7"
-                strokeDashoffset="70" /* Это число меняет длину полоски */
-                strokeLinecap="round"
-                transform="rotate(-90 50 50)" /* Разворачиваем, чтобы начиналось сверху */
+                // cx="50"
+                // cy="50"
+                // r="45"
+                // stroke="white"
+                // strokeWidth="8"
+                // fill="none"
+                // strokeDasharray="282.7"
+                // strokeDashoffset="70" /* Это число меняет длину полоски */
+                // strokeLinecap="round"
+                // transform="rotate(-90 50 50)" /* Разворачиваем, чтобы начиналось сверху */
               />
             </svg>
             <div className="steps-count">
-              <strong>6560</strong>
+              <strong>0</strong>
               <span>Шагов</span>
             </div>
           </div>

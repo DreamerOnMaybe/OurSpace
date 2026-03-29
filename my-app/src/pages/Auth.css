@@ -45,7 +45,7 @@
     border: none;
 }
 
-#registerForm button {
+.register-btn {
     font-weight: 600;
     font-size: 16px;
     color: var(--text-text-neutral-9);
@@ -53,4 +53,29 @@
     border-radius: 360px;
     padding: 16px 24px;
     border: none;
+}
+
+.auth-error {
+    color: red;
+}
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+    
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.password-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
 }

@@ -11,6 +11,18 @@ function Auth() {
   const [name, setName] = useState('')
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
+  const getErrorMessage = (code) => {
+    switch(code) {
+      case 'auth/invalid-credential': return 'Неверный email или пароль'
+      case 'auth/email-already-in-use': return 'Этот email уже используется'
+      case 'auth/weak-password': return 'Пароль должен быть не менее 6 символов'
+      case 'auth/invalid-email': return 'Неверный формат email'
+      default: return 'Что-то пошло не так, попробуйте снова'
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -23,7 +35,7 @@ function Auth() {
       }
       navigate('/')
     } catch (error) {
-      console.log(error.message)
+      setError(getErrorMessage(error.code))
     } finally {
       setLoading(false)
     }
@@ -45,7 +57,7 @@ function Auth() {
           Регистрация
         </button>
       </div>
-      <form id="registerForm" onSubmit={handleSubmit}>
+      <form className="register-form" id="registerForm" onSubmit={handleSubmit}>
         {!isLogin && 
           <input 
             type="text" 
@@ -64,17 +76,26 @@ function Auth() {
           placeholder="Ваш Email"
         />
 
-        <input
-          className="password"
-          type="password"
-          id="password"
-          name="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Введите пароль"
-        />
-
-        <button type="submit" disabled={loading}>
+        <div className="password-wrapper">
+          <input
+            className="password"
+            type={showPassword ? 'text' : 'password'}
+            id="password"
+            name="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Введите пароль"
+          />
+          <button
+            className="password-btn"
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? '🙈' : '👀'}
+          </button>
+        </div>
+        {error && <p className="auth-error">{error}</p>}
+        <button className="register-btn" type="submit" disabled={loading}>
           {loading ? 'Загрузка...' : isLogin ? "Войти" : "Зарегистрироваться"}
         </button>
       </form>

@@ -12,13 +12,13 @@
 }
 
 .task-card.expanded .task-top {
-    flex-wrap: wrap;
+    align-items: flex-start;
 }
 
 .task-card.expanded span {
     word-break: break-word;
     white-space: normal;
-    width: 80%;
+    flex: 1;
 }
 
 .task-top {
@@ -33,6 +33,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    align-self: flex-start;
 }
 
 .task-right button {
