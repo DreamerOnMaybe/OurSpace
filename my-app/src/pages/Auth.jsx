@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { auth } from '../firebase'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import "./Auth.css";
 import { useNavigate } from "react-router-dom";
 
@@ -12,7 +12,9 @@ function Auth() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [message, setMessage] = useState('') // для уведомлений об отправке письма
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true) // состояние для чекбокса
 
   const getErrorMessage = (code) => {
     switch(code) {
@@ -20,6 +22,7 @@ function Auth() {
       case 'auth/email-already-in-use': return 'Этот email уже используется'
       case 'auth/weak-password': return 'Пароль должен быть не менее 6 символов'
       case 'auth/invalid-email': return 'Неверный формат email'
+      case 'auth/user-not-found': return 'Пользователь с таким Email не найден'
       default: return 'Что-то пошло не так, попробуйте снова'
     }
   }
@@ -27,6 +30,8 @@ function Auth() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
+    setError('')
+    setMessage('')
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password)
@@ -41,18 +46,33 @@ function Auth() {
     }
   }
 
+  // функция для сброса пороля
+  const handleForgotPassword = async () => {
+    if(!email) {
+      setError('Введите  Email, чтобы получить ссылку для сброса')
+      return
+    }
+    try {
+      await sendPasswordResetEmail(auth, email)
+      setMessage('Письмо с ссылкой для смены пароля отправлено на вашу почту')
+      setError('')
+    } catch {
+      setError('Ошибка при отправке письма. проверьте правильность Email')
+    }
+  }
+
   return (
     <div className="login-container">   
       <div className="tabs-btns">
         <button
           className={isLogin ? "active" : ""}
-          onClick={() => setIsLogin(true)}
+          onClick={() => {setIsLogin(true); setError(''); setMessage('')}}
         >
           Вход
         </button>
         <button
           className={!isLogin ? "active" : ""}
-          onClick={() => setIsLogin(false)}
+          onClick={() => {setIsLogin(false); setError(''); setMessage('')}}
         >
           Регистрация
         </button>
@@ -94,7 +114,21 @@ function Auth() {
             {showPassword ? '🙈' : '👀'}
           </button>
         </div>
+
+        {isLogin && (
+          <div className="auth-extra">
+            <label className="remember-me">
+              <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} />
+              <span>Запомнить меня</span>
+            </label>
+            <button className="forgot-password-link" type="button" onClick={handleForgotPassword}>
+              Забыли пароль?
+            </button>
+          </div>
+        )}
+
         {error && <p className="auth-error">{error}</p>}
+        {message && <p className="auth-success">{message}</p>}
         <button className="register-btn" type="submit" disabled={loading}>
           {loading ? 'Загрузка...' : isLogin ? "Войти" : "Зарегистрироваться"}
         </button>

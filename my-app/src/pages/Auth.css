@@ -3,7 +3,7 @@
     flex-direction: column;
     background: var(--surface-surface-neutral-2);
     border-radius: 32px;
-    padding: 32px;
+    padding: 15px;
     margin: 12px;
 }
 
@@ -26,6 +26,8 @@
     border-radius: 360px;
     padding: 4px 12px;
     border: none;
+    font-size: 16px;
+    font-weight: 600;
 }
 
 #registerForm {
@@ -78,4 +80,23 @@
     background: none;
     border: none;
     padding: 0;
+}
+
+.auth-extra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.remember-me {
+    font-size: 14px;
+    display: flex;
+    gap: 4px;
+}
+
+.forgot-password-link {
+    font-size: 14px;
+    border: none;
+    font-weight: 800;
+    text-decoration: underline;
 }
