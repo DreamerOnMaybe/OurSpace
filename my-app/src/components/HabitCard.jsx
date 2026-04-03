@@ -8,7 +8,7 @@ function HabitCard({ habit, onUpdateMinutes }) {
             <div className="habit-card-right">
                 <div className="minutes-counter">
                     <button onClick={(e) => { e.stopPropagation(); onUpdateMinutes(habit.id, -10) }}>-</button>
-                    <span>{habit.minutes} мин.</span>
+                    <span className="habit-name">{habit.minutes} мин.</span>
                     <button onClick={(e) => { e.stopPropagation(); onUpdateMinutes(habit.id, +10) }}>+</button>
                 </div>
             </div>

@@ -11,6 +11,13 @@
     transition: all 0.2s ease;
 }
 
+.task-card span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
 .task-card.expanded .task-top {
     align-items: flex-start;
 }

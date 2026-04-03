@@ -28,8 +28,8 @@ function AddTaskModal ({onAdd, onClose}) {
                 />
 
                 <div className="add-modal-btns">
+                    <button className="close" onClick={onClose}>Отмена</button>
                     <button onClick={handleAdd}>Добавить</button>
-                    <button onClick={onClose}>Отмена</button>
                 </div>
             </div>
         </div>
