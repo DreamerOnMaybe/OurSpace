@@ -78,7 +78,16 @@ function Auth() {
         </button>
       </div>
       <form className="register-form" id="registerForm" onSubmit={handleSubmit}>
-        {!isLogin && 
+        {!isLogin &&
+          <h1>Регистрация</h1>
+        }
+        {isLogin && 
+          <span className="welcome">С возвращением!</span>
+        }
+        {isLogin &&
+          <h1>Вход</h1>
+        }
+        {!isLogin &&
           <input 
             type="text" 
             placeholder="Ваше имя" 

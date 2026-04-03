@@ -26,6 +26,14 @@ const cityName = "Omsk";
 const apiKey = import.meta.env.VITE_API_KEY;
 const currentUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric&lang=ru`;
 
+const defaultHabits = [
+  { id: 1, name: 'Прогулка', icon: '🚶', minutes: 0, log: {} },
+  { id: 2, name: 'Пробежка', icon: '🏃', minutes: 0, log: {} },
+  { id: 3, name: 'Тренировка', icon: '💪', minutes: 0, log: {} },
+  { id: 4, name: 'Чтение', icon: '📖', minutes: 0, log: {} },
+  { id: 5, name: 'Медитация', icon: '🧘', minutes: 0, log: {} },
+]
+
 function Home() {
   const [userId, setUserId] = useState(null)
   const [dataLoaded, setDataLoaded] = useState(false)
@@ -65,19 +73,23 @@ function Home() {
       const docRef = doc(db, 'users', userId)
       const docSnap = await getDoc(docRef)
 
-      const today = new Date().toLocaleDateString()
-
       if (docSnap.exists()) {
         const data = docSnap.data()
         const savedDate = data.date
+        const today = new Date().toLocaleDateString()
 
         if (savedDate !== today) {
-          // день сменился - сбрасываем
-          setHabits([])
+          // день сменился - сбрасываем только минуты и completed
+          const resetHabits = (data.habits || defaultHabits).map(h => ({
+            ...h,
+            minutes: 0,
+            completed: false
+          }))
+          setHabits(resetHabits)
           setGlasses(0)
         } else {
           // загружаем сохранённые данные
-          setHabits(data.habits || [])
+          setHabits(data.habits || defaultHabits)
           setGlasses(data.glasses || 0)
         }
       }
@@ -109,6 +121,17 @@ function Home() {
       ),
     );
   };
+  
+  const handleUpdateMinutes = (id, amount) => {
+    setHabits(
+      habits.map(
+        (habit) =>
+          habit.id === id
+          ? { ...habit, minutes: Math.max(0, habit.minutes + amount) }
+          : habit
+      )
+    )
+  }
 
   const handleSignOut = async () => {
     await signOut(auth)
@@ -238,7 +261,7 @@ function Home() {
       {habits.length === 0 ? (
         <p className="empty-text">Здесь пока пусто...</p>
       ) : (
-        <HabitList habits={habits} onToggle={handleToggleHabit} />
+        <HabitList habits={habits} onToggle={handleToggleHabit} onUpdateMinutes={handleUpdateMinutes}/>
       )}
 
       <nav className="nav-bar">

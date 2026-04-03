@@ -31,7 +31,7 @@
 }
 
 #registerForm {
-    margin-top: 36px;
+    margin-top: 24px;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -99,4 +99,9 @@
     border: none;
     font-weight: 800;
     text-decoration: underline;
+}
+
+.welcome {
+    font-size: 16px;
+    opacity: 0.5;
 }
