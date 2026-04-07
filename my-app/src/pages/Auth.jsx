@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { auth } from '../firebase'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from "firebase/auth";
 import "./Auth.css";
 import { useNavigate } from "react-router-dom";
 
@@ -36,7 +36,11 @@ function Auth() {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password)
       } else {
-        await createUserWithEmailAndPassword(auth, email, password)
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+        await updateProfile(userCredential.user, {
+          displayName: name
+        })
+        console.log('Профиль обновлен, имя:', userCredential.user.displayName)
       }
       navigate('/')
     } catch (error) {

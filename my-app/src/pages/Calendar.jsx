@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import "../App.css";
 import './Calendar.css'
@@ -9,15 +8,13 @@ import { db, auth } from '../firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 
-import backBtn from "../assets/arrow-left-long.svg";
+import Header from "../components/Header.jsx"
+import Navbar from "../components/Navbar.jsx"
+
 import calendar from "../assets/calendar.svg";
-import home from "../assets/home.svg";
-import user from "../assets/user.svg";
-import plus from "../assets/plus.svg";
-import bellNotification from "../assets/bell-notification.svg";
+
 
 function Calendar() {
-  const navigate = useNavigate()
 
   const [userId, setUserId] = useState(null)
   useEffect(() => {
@@ -185,7 +182,7 @@ function Calendar() {
 
   return (
     <div className="app-container">
-      <header className="header">
+      {/* <header className="header">
         <button className="grey-btn" onClick={() => navigate('/')}>
           <img src={backBtn} alt="Назад" />
         </button>
@@ -193,7 +190,12 @@ function Calendar() {
         <button className="grey-btn" onClick={() => setIsMonthOpen(!isMonthOpen)}>
           <img src={calendar} alt="Календарь" />
         </button>
-      </header>
+      </header> */}
+      <Header
+        title={`Сегодня, ${todayFormatted.slice(0, 5)}`}
+        onRightClick={() => setIsMonthOpen(!isMonthOpen)}
+        rightIcon={calendar}
+      />
 
       <div className="week-strip">
         {weekDays.map((day, index) => {
@@ -278,11 +280,11 @@ function Calendar() {
         ></textarea>
       )}
 
-      <nav className="nav-bar">
+      {/* <nav className="nav-bar">
         <button className="nav-item" onClick={() => navigate('/')}>
           <img src={home} alt="Кнопка домой" />
         </button>
-        <button className="nav-item">
+        <button className="nav-item" onClick={() => navigate("/profile")}>
           <img src={user} alt="Кнопка в профиль" />
         </button>
         <button className="nav-item plus" onClick={() => activeTab === 'tasks' ? setIsModalOpen(true) : ''}>
@@ -294,7 +296,8 @@ function Calendar() {
         <button className="nav-item">
           <img src={bellNotification} alt="Кнопка уведомлений" />
         </button>
-      </nav>
+      </nav> */}
+      <Navbar activeTab='calendar' isChatCenter={false} onPlusClick={() => setIsModalOpen(true)} />
       {isModalOpen && (
         <AddTaskModal
           onAdd={handleAddTasks}

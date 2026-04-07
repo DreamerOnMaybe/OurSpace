@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
-import { signOut } from "firebase/auth";
 import { db } from '../firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
@@ -9,15 +8,12 @@ import "../App.css";
 import HabitList from "../components/HabitList";
 import AddHabitModal from "../components/AddHabitModal";
 
-import settings from "../assets/settings.svg";
+import Header from "../components/Header.jsx"
+import Navbar from "../components/Navbar.jsx"
+
 import userAvatar from "../assets/avatar.png";
 import walk from "../assets/walk.svg";
 import water from "../assets/water.svg";
-import home from "../assets/home.svg";
-import user from "../assets/user.svg";
-import plus from "../assets/plus.svg";
-import calendar from "../assets/calendar.svg";
-import bellNotification from "../assets/bell-notification.svg";
 import sunny from "../assets/sunny.svg";
 import wind from "../assets/wind.svg";
 import humidity from "../assets/humidity.svg";
@@ -59,12 +55,20 @@ function Home() {
   const handleAddHabit = (newHabit) => {
     setHabits([newHabit, ...habits]);
   };
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(currentUrl) // делаем запрос к API
-      .then((res) => res.json()) // преобразуем ответ в JSON
-      .then((data) => setWeather(data)); // записываем данные в state
+    const fetchWeather = async () => {
+      try {
+        const res = await fetch(currentUrl)
+        if (!res.ok) throw new Error("Ошибка сети")
+        const data = await res.json()
+        setWeather(data)
+      } catch (err) {
+        console.error('Не удалось загрузить погоду:', err)
+      }
+    }
+    fetchWeather()
   }, []);
   useEffect(() => {
     if (!userId) return
@@ -133,21 +137,13 @@ function Home() {
     )
   }
 
-  const handleSignOut = async () => {
-    await signOut(auth)
-  }
-
   return (
     <div className="app-container">
-      <header className="header">
-        <button className="grey-btn">
-          <img src={settings} alt="Назад" />
-        </button>
-        <h2>Сегодня</h2>
-        <button className="avatar" type="submit" onClick={handleSignOut}>
-          <img src={userAvatar} alt="Профиль" />
-        </button>
-      </header>
+      <Header
+        title={'Сегодня'}
+        onRightClick={() => Navigate('/profile')}
+        rightIcon={userAvatar}
+      />
 
       <div className="stats-grid">
         <div className="card green-card">
@@ -243,7 +239,7 @@ function Home() {
       <div className="weather-card">
         <div className="weather-statistic">
           <div className="weather-card-item">
-            <p className="temp card-text">{Math.round(weather?.main.temp)}°</p>
+            <p className="temp card-text">{weather ? Math.round(weather.main.temp) : '--'}°</p>
             <img src={sunny} alt="" />
           </div>
           <div className="weather-card-item">
@@ -264,23 +260,7 @@ function Home() {
         <HabitList habits={habits} onToggle={handleToggleHabit} onUpdateMinutes={handleUpdateMinutes}/>
       )}
 
-      <nav className="nav-bar">
-        <button className="nav-item active">
-          <img src={home} alt="Кнопка домой" />
-        </button>
-        <button className="nav-item">
-          <img src={user} alt="Кнопка в профиль" />
-        </button>
-        <button className="nav-item plus" onClick={() => setIsModalOpen(true)}>
-          <img src={plus} alt="Кнопка добавить" />
-        </button>
-        <button className="nav-item" onClick={() => navigate("/calendar")}>
-          <img src={calendar} alt="Кнопка календарь" />
-        </button>
-        <button className="nav-item">
-          <img src={bellNotification} alt="Кнопка уведомлений" />
-        </button>
-      </nav>
+      <Navbar activeTab='home' isChatCenter={false} onPlusClick={() => setIsModalOpen(true)} />
       {isModalOpen && (
         <AddHabitModal
           onAdd={handleAddHabit}

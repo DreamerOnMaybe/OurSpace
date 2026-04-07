@@ -5,6 +5,7 @@ import { onAuthStateChanged } from 'firebase/auth' // слушатель кот�
 import Home from './pages/Home.jsx'
 import Calendar from './pages/Calendar.jsx'
 import Auth from './pages/Auth.jsx'
+import Profile from './pages/Profile.jsx'
 
 import { Navigate } from 'react-router-dom'
 
@@ -42,6 +43,11 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path="/auth" element={<Auth />} />
+        <Route path='/profile' element={
+          <ProtectedRoute user={user} loading={loading}>
+            <Profile />
+          </ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   )
