@@ -71,11 +71,10 @@
 
 .add-modal-btns .close {
     background: var(--surface-surface-secondary-100);
-    color: var(--text-text-neutral-9);
 }
 
 .add-modal-btns button {
-    background: var(--surface-surface-primary-120);
+    background: var(--colors-success);
     border: none;
     padding: 5px 10px;
     border-radius: 30px;

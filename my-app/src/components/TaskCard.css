@@ -61,7 +61,8 @@
 }
 
 .task-card.completed {
-    background: var(--colors-brand-primary-100);
+    background: var(--colors-success);
+    border: 2px solid var(--colors-success);
 }
 
 .task-card.completed button {

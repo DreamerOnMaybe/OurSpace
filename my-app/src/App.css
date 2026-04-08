@@ -3,6 +3,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
 
 :root {
+  --colors-brand-primary-20: #e8eeec;   /* очень светлый зелёный */
+  --colors-brand-primary-40: #c5d4d0;   /* светлый зелёный */
+  --colors-brand-secondary-20: #ffe8e7;
+  --colors-success: #4caf7d;
 	--colors-brand-secondary-100: #ff6a5f;
 	--colors-brand-primary-100: #465a54;
 	--colors-brand-primary-120: #252f2c;
