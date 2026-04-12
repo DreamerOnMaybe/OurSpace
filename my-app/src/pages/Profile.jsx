@@ -12,6 +12,12 @@ import Navbar from "../components/Navbar.jsx"
 import defaultAvatar from "../assets/account.png"
 
 function Profile() {
+  const [stats, setStats] = useState({
+    habitsCompleted: 0,
+    tasksCompleted: 0,
+    streak: 0,
+  })
+
   const [isEditing, setIsEditing] = useState(false) // состояние редактирования текста профиля
   const [editData, setEditData] = useState({ name: '', bio: '' }) // состояние для изменений
 
@@ -44,6 +50,16 @@ function Profile() {
           name: data.name || '', // если нет имени - пустая строка
           bio: data.bio || ''
         })
+        const habits = data.habits || [] // берем привычки, если нет - пустой массив
+        const tasks = data.tasks || {} // берем задачи, если нет - пустой объект
+
+        const habitsCompleted = habits.filter(h => h.minutes > 0).length // фильтруем привычки, если минут больше 0 - значит пользователь уделил им время
+
+        const tasksCompleted = Object.values(tasks)
+          .flat()
+          .filter(t => t.completed).length
+
+        setStats({ habitsCompleted, tasksCompleted, streak: data.streak || 0})
       }
     }
     loadProfile()
@@ -90,6 +106,24 @@ function Profile() {
               <button className="editing-btn" onClick={() => { setEditData(userData); setIsEditing(true) }}>✏️</button>
             </>
           )}
+        </div>
+      </div>
+
+      <div className="stats-cards">
+        <div className="stat-card">
+          <img src="../src/assets/habits-stat.svg" alt="" />
+          <strong>{stats.habitsCompleted}</strong>
+          <p>Привычек выполнено</p>
+        </div>
+        <div className="stat-card">
+          <img src="../src/assets/tasks-stat.svg" alt="" />
+          <strong>{stats.tasksCompleted}</strong>
+          <p>Задач завершено</p>
+        </div>
+        <div className="stat-card">
+          <img src="../src/assets/streak-stat.svg" alt="" />
+          <strong>{stats.streak}</strong>
+          <p>Дней подряд</p>
         </div>
       </div>
 
