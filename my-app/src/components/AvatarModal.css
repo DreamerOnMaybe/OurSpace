@@ -1,0 +1,44 @@
+.avatars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.avatars-grid button {
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.close {
+  background: var(--colors-brand-secondary-100);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 30px;
+  color: var(--text-text-neutral-0);
+  font-size: 16px;
+  width: 100px;
+}
+
+.avatars-grid button img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatars-grid button:hover {
+  border-color: var(--colors-brand-primary-100);
+}
+
+.profile-avatar {
+  position: relative;
+}
+
+.avatar-edit {
+  position: absolute;
+  right: 5px;
+  bottom: 10px;
+}
