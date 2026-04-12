@@ -182,15 +182,6 @@ function Calendar() {
 
   return (
     <div className="app-container">
-      {/* <header className="header">
-        <button className="grey-btn" onClick={() => navigate('/')}>
-          <img src={backBtn} alt="Назад" />
-        </button>
-        <h2>Сегодня, {todayFormatted.slice(0, 5)}</h2>
-        <button className="grey-btn" onClick={() => setIsMonthOpen(!isMonthOpen)}>
-          <img src={calendar} alt="Календарь" />
-        </button>
-      </header> */}
       <Header
         title={`Сегодня, ${todayFormatted.slice(0, 5)}`}
         onRightClick={() => setIsMonthOpen(!isMonthOpen)}
@@ -280,23 +271,6 @@ function Calendar() {
         ></textarea>
       )}
 
-      {/* <nav className="nav-bar">
-        <button className="nav-item" onClick={() => navigate('/')}>
-          <img src={home} alt="Кнопка домой" />
-        </button>
-        <button className="nav-item" onClick={() => navigate("/profile")}>
-          <img src={user} alt="Кнопка в профиль" />
-        </button>
-        <button className="nav-item plus" onClick={() => activeTab === 'tasks' ? setIsModalOpen(true) : ''}>
-          <img src={plus} alt="Кнопка добавить"/>
-        </button>
-        <button className="nav-item active">
-          <img src={calendar} alt="Кнопка календарь" />
-        </button>
-        <button className="nav-item">
-          <img src={bellNotification} alt="Кнопка уведомлений" />
-        </button>
-      </nav> */}
       <Navbar activeTab='calendar' isChatCenter={false} onPlusClick={() => setIsModalOpen(true)} />
       {isModalOpen && (
         <AddTaskModal

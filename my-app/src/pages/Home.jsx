@@ -41,6 +41,7 @@ function Home() {
     return () => unsubscribe()
   }, [])
 
+  const navigate = useNavigate()
   const [glasses, setGlasses] = useState(0); // количество выпитых стаканов, начальное значение 0
   const liters = (glasses * 0.2).toFixed(2); // переводим стаканы в литры, toFixed(2) - два знака после запятой
   const maxGlasses = 10; // максимум 10 стаканов = 2 литра
@@ -55,7 +56,6 @@ function Home() {
   const handleAddHabit = (newHabit) => {
     setHabits([newHabit, ...habits]);
   };
-  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -127,21 +127,26 @@ function Home() {
   };
   
   const handleUpdateMinutes = (id, amount) => {
-    setHabits(
-      habits.map(
-        (habit) =>
-          habit.id === id
-          ? { ...habit, minutes: Math.max(0, habit.minutes + amount) }
-          : habit
-      )
-    )
+    const today = new Date().toLocaleDateString()
+    setHabits(habits.map(habit => {
+      if(habit.id !== id) return habit
+      const newMinutes = Math.max(0, habit.minutes + amount)
+      return {
+        ...habit,
+        minutes: newMinutes,
+        log: {
+          ...habit.log,
+          [today]: { minutes: newMinutes, completed: newMinutes > 0 }
+        }
+      }
+    }))
   }
 
   return (
     <div className="app-container">
       <Header
         title={'Сегодня'}
-        onRightClick={() => Navigate('/profile')}
+        onRightClick={() => navigate('/profile')}
         rightIcon={userAvatar}
       />
 
