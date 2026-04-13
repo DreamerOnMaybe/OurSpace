@@ -9,6 +9,10 @@ import "./Profile.css";
 import Header from "../components/Header.jsx";
 import Navbar from "../components/Navbar.jsx";
 
+import habitsIcon from '../assets/habits-stat.svg'
+import tasksIcon from '../assets/tasks-stat.svg'
+import streakIcon from '../assets/streak-stat.svg'
+
 import AvatarModal from "../components/AvatarModal.jsx";
 
 import defaultAvatar from "../assets/account.png";
@@ -56,7 +60,11 @@ function Profile() {
 
   const isDayCompleted = (date) => {
     const dateKey = formatDay(date);
-    return habits.some((habit) => habit.log?.[dateKey]?.completed); // проверяем, есть ли в логах привычки, которые были выполнены в этот день
+    if (!habits || habits.length === 0) return false
+
+    return habits.some((habit) => {
+      return habit.log && habit.log[dateKey] && habit.log[dateKey].completed === true
+    }); // проверяем, есть ли в логах привычки, которые были выполнены в этот день
   };
 
   const [habits, setHabits] = useState([]);
@@ -110,14 +118,24 @@ function Profile() {
         const habits = data.habits || []; // берем привычки, если нет - пустой массив
         const tasks = data.tasks || {}; // берем задачи, если нет - пустой объект
 
-        const habitsCompleted = habits.filter((h) => h.minutes > 0).length; // фильтруем привычки, если минут больше 0 - значит пользователь уделил им время
+        const totalHabitsCompleted = habits.reduce((acc, habit) => {
+          const completedCount = habit.log 
+            ? Object.values(habit.log).filter(logEntry => logEntry.completed).length 
+            : 0
+          return acc + completedCount
+        }, 0)
 
         const tasksCompleted = Object.values(tasks)
           .flat()
           .filter((t) => t.completed).length;
 
-        setStats({ habitsCompleted, tasksCompleted, streak: data.streak || 0 });
-        setHabits(data.habits || []);
+        setStats({ 
+          habitsCompleted: totalHabitsCompleted, 
+          tasksCompleted: tasksCompleted, 
+          streak: data.streak || 0
+        })
+
+        setHabits(habits);
       }
     };
     loadProfile();
@@ -188,17 +206,17 @@ function Profile() {
 
       <div className="stats-cards">
         <div className="stat-card">
-          <img src="../src/assets/habits-stat.svg" alt="" />
+          <img src={habitsIcon} alt="" />
           <strong>{stats.habitsCompleted}</strong>
           <p>Привычек выполнено</p>
         </div>
         <div className="stat-card">
-          <img src="../src/assets/tasks-stat.svg" alt="" />
+          <img src={tasksIcon} alt="" />
           <strong>{stats.tasksCompleted}</strong>
           <p>Задач завершено</p>
         </div>
         <div className="stat-card">
-          <img src="../src/assets/streak-stat.svg" alt="" />
+          <img src={streakIcon} alt="" />
           <strong>{stats.streak}</strong>
           <p>Дней подряд</p>
         </div>
