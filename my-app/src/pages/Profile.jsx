@@ -157,7 +157,7 @@ function Profile() {
           className="profile-avatar"
           onClick={() => setIsAvatarModalOpen(true)}
         >
-          <img src={avatar || defaultAvatar} alt="" />
+          <img src={avatar && avatar !== '' ? avatar : defaultAvatar} alt="" />
           <div className="avatar-edit">📷</div>
         </div>
         <div className="profile-info">

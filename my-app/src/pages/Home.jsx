@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
-import { db } from '../firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
-import { onAuthStateChanged } from 'firebase/auth'
+import { db } from "../firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import "../App.css";
 import HabitList from "../components/HabitList";
 import AddHabitModal from "../components/AddHabitModal";
 
-import Header from "../components/Header.jsx"
-import Navbar from "../components/Navbar.jsx"
+import Header from "../components/Header.jsx";
+import Navbar from "../components/Navbar.jsx";
 
 import userAvatar from "../assets/avatar.png";
 import walk from "../assets/walk.svg";
@@ -23,25 +23,25 @@ const apiKey = import.meta.env.VITE_API_KEY;
 const currentUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric&lang=ru`;
 
 const defaultHabits = [
-  { id: 1, name: 'Прогулка', icon: '🚶', minutes: 0, log: {} },
-  { id: 2, name: 'Пробежка', icon: '🏃', minutes: 0, log: {} },
-  { id: 3, name: 'Тренировка', icon: '💪', minutes: 0, log: {} },
-  { id: 4, name: 'Чтение', icon: '📖', minutes: 0, log: {} },
-  { id: 5, name: 'Медитация', icon: '🧘', minutes: 0, log: {} },
-]
+  { id: 1, name: "Прогулка", icon: "🚶", minutes: 0, log: {} },
+  { id: 2, name: "Пробежка", icon: "🏃", minutes: 0, log: {} },
+  { id: 3, name: "Тренировка", icon: "💪", minutes: 0, log: {} },
+  { id: 4, name: "Чтение", icon: "📖", minutes: 0, log: {} },
+  { id: 5, name: "Медитация", icon: "🧘", minutes: 0, log: {} },
+];
 
 function Home() {
-  const [userId, setUserId] = useState(null)
-  const [dataLoaded, setDataLoaded] = useState(false)
+  const [userId, setUserId] = useState(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) setUserId(currentUser.uid)
-    })
-    return () => unsubscribe()
-  }, [])
+      if (currentUser) setUserId(currentUser.uid);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [glasses, setGlasses] = useState(0); // количество выпитых стаканов, начальное значение 0
   const liters = (glasses * 0.2).toFixed(2); // переводим стаканы в литры, toFixed(2) - два знака после запятой
   const maxGlasses = 10; // максимум 10 стаканов = 2 литра
@@ -60,60 +60,84 @@ function Home() {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const res = await fetch(currentUrl)
-        if (!res.ok) throw new Error("Ошибка сети")
-        const data = await res.json()
-        setWeather(data)
+        const res = await fetch(currentUrl);
+        if (!res.ok) throw new Error("Ошибка сети");
+        const data = await res.json();
+        setWeather(data);
       } catch (err) {
-        console.error('Не удалось загрузить погоду:', err)
+        console.error("Не удалось загрузить погоду:", err);
       }
-    }
-    fetchWeather()
+    };
+    fetchWeather();
   }, []);
   useEffect(() => {
-    if (!userId) return
+    if (!userId) return;
 
     const loadData = async () => {
-      const docRef = doc(db, 'users', userId)
-      const docSnap = await getDoc(docRef)
+      const docRef = doc(db, "users", userId);
+      const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        const data = docSnap.data()
-        const savedDate = data.date
-        const today = new Date().toLocaleDateString()
+        const data = docSnap.data();
+        const savedDate = data.date;
+
+        const now = new Date();
+        const today = now.toLocaleDateString();
+
+        const yesterdayDate = new Date();
+        yesterdayDate.setDate(now.getDate() - 1);
+        const yesterday = yesterdayDate.toLocaleDateString();
 
         if (savedDate !== today) {
-          // день сменился - сбрасываем только минуты и completed
-          const resetHabits = (data.habits || defaultHabits).map(h => ({
+          let currentStreak = data.streak || 0;
+
+          const wasYesterdayProductive = (data.habits || []).some(h => h.completed || h.minutes > 0);
+          
+          if (savedDate !== yesterday || !wasYesterdayProductive) {
+            currentStreak = 0
+          }
+
+          const resetHabits = (data.habits || defaultHabits).map((h) => ({
             ...h,
             minutes: 0,
-            completed: false
-          }))
-          setHabits(resetHabits)
-          setGlasses(0)
+            completed: false,
+          }));
+
+          setHabits(resetHabits);
+          setGlasses(0);
+
+          // Обновляем стрик в базе сразу при смене дня
+          await setDoc(
+            docRef,
+            { streak: currentStreak, date: today },
+            { merge: true },
+          );
         } else {
-          // загружаем сохранённые данные
-          setHabits(data.habits || defaultHabits)
-          setGlasses(data.glasses || 0)
+          setHabits(data.habits || defaultHabits);
+          setGlasses(data.glasses || 0);
         }
       }
-      setDataLoaded(true)
-    }
-    loadData()
+      setDataLoaded(true);
+    };
+    loadData();
   }, [userId]);
   useEffect(() => {
-    if (!userId || !dataLoaded) return
+    if (!userId || !dataLoaded) return;
 
-    const saveData = async() => {
-      const today = new Date().toLocaleDateString()
-      await setDoc(doc(db, 'users', userId), {
-        habits,
-        glasses,
-        date: today
-      }, { merge: true })
-    }
-    saveData()
-  }, [habits, glasses, userId, dataLoaded])
+    const saveData = async () => {
+      const today = new Date().toLocaleDateString();
+      await setDoc(
+        doc(db, "users", userId),
+        {
+          habits,
+          glasses,
+          date: today,
+        },
+        { merge: true },
+      );
+    };
+    saveData();
+  }, [habits, glasses, userId, dataLoaded]);
 
   const handleToggleHabit = (id) => {
     setHabits(
@@ -125,28 +149,37 @@ function Home() {
       ),
     );
   };
-  
-  const handleUpdateMinutes = (id, amount) => {
-    const today = new Date().toLocaleDateString()
-    setHabits(habits.map(habit => {
+
+  const handleUpdateMinutes = async (id, amount) => {
+    const today = new Date().toLocaleDateString();
+
+    const updateHabits = habits.map(habit => {
       if(habit.id !== id) return habit
       const newMinutes = Math.max(0, habit.minutes + amount)
       return {
         ...habit,
         minutes: newMinutes,
-        log: {
-          ...habit.log,
-          [today]: { minutes: newMinutes, completed: newMinutes > 0 }
-        }
+        log: { ...habit.log, [today]: { minutes: newMinutes, completed: newMinutes > 0 } }
       }
-    }))
-  }
+    })
+    setHabits(updateHabits);
+
+    const isFirstActivityToday = habits.every(h => !h.completed && h.minutes === 0) && glasses === 0
+    if (isFirstActivityToday && amount > 0) {
+      const userRef = doc(db, 'users', userId)
+      const userSnap = await getDoc(userRef)
+      const currentStreak = userSnap.data()?.streak || 0
+
+      await setDoc(userRef, { streak: currentStreak + 1 }, { merge: true })
+    }
+
+  };
 
   return (
     <div className="app-container">
       <Header
-        title={'Сегодня'}
-        onRightClick={() => navigate('/profile')}
+        title={"Сегодня"}
+        onRightClick={() => navigate("/profile")}
         rightIcon={userAvatar}
       />
 
@@ -169,16 +202,16 @@ function Home() {
               />
               {/* Круг прогресса */}
               <circle
-                // cx="50"
-                // cy="50"
-                // r="45"
-                // stroke="white"
-                // strokeWidth="8"
-                // fill="none"
-                // strokeDasharray="282.7"
-                // strokeDashoffset="70" /* Это число меняет длину полоски */
-                // strokeLinecap="round"
-                // transform="rotate(-90 50 50)" /* Разворачиваем, чтобы начиналось сверху */
+              // cx="50"
+              // cy="50"
+              // r="45"
+              // stroke="white"
+              // strokeWidth="8"
+              // fill="none"
+              // strokeDasharray="282.7"
+              // strokeDashoffset="70" /* Это число меняет длину полоски */
+              // strokeLinecap="round"
+              // transform="rotate(-90 50 50)" /* Разворачиваем, чтобы начиналось сверху */
               />
             </svg>
             <div className="steps-count">
@@ -244,7 +277,9 @@ function Home() {
       <div className="weather-card">
         <div className="weather-statistic">
           <div className="weather-card-item">
-            <p className="temp card-text">{weather ? Math.round(weather.main.temp) : '--'}°</p>
+            <p className="temp card-text">
+              {weather ? Math.round(weather.main.temp) : "--"}°
+            </p>
             <img src={sunny} alt="" />
           </div>
           <div className="weather-card-item">
@@ -262,10 +297,18 @@ function Home() {
       {habits.length === 0 ? (
         <p className="empty-text">Здесь пока пусто...</p>
       ) : (
-        <HabitList habits={habits} onToggle={handleToggleHabit} onUpdateMinutes={handleUpdateMinutes}/>
+        <HabitList
+          habits={habits}
+          onToggle={handleToggleHabit}
+          onUpdateMinutes={handleUpdateMinutes}
+        />
       )}
 
-      <Navbar activeTab='home' isChatCenter={false} onPlusClick={() => setIsModalOpen(true)} />
+      <Navbar
+        activeTab="home"
+        isChatCenter={false}
+        onPlusClick={() => setIsModalOpen(true)}
+      />
       {isModalOpen && (
         <AddHabitModal
           onAdd={handleAddHabit}
