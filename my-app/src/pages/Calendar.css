@@ -26,11 +26,12 @@
     border-radius: 15px;
     min-width: 40px;
     flex-shrink: 0;
+    color: var(--current-text);
 }
 
 .active {
     background: var(--colors-brand-primary-100);
-    color: var(--text-text-neutral-0);
+    color: #fff;
 }
 
 .tabs {

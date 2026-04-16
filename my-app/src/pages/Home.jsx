@@ -11,12 +11,13 @@ import AddHabitModal from "../components/AddHabitModal";
 import Header from "../components/Header.jsx";
 import Navbar from "../components/Navbar.jsx";
 
-import userAvatar from "../assets/avatar.png";
 import walk from "../assets/walk.svg";
 import water from "../assets/water.svg";
 import sunny from "../assets/sunny.svg";
 import wind from "../assets/wind.svg";
 import humidity from "../assets/humidity.svg";
+import moonIcon from '../assets/moon.svg'
+import sunIcon from '../assets/sun.svg'
 
 const cityName = "Omsk";
 const apiKey = import.meta.env.VITE_API_KEY;
@@ -31,8 +32,20 @@ const defaultHabits = [
 ];
 
 function Home() {
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
   const [userId, setUserId] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light')
+  }
+
+  const themeIcon = theme === 'light' ? moonIcon : sunIcon
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -179,8 +192,8 @@ function Home() {
     <div className="app-container">
       <Header
         title={"Сегодня"}
-        onRightClick={() => navigate("/profile")}
-        rightIcon={userAvatar}
+        onRightClick={toggleTheme}
+        rightIcon={themeIcon}
       />
 
       <div className="stats-grid">
