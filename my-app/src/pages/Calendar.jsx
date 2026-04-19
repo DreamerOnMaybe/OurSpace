@@ -77,12 +77,12 @@ function Calendar() {
   const [tasks, setTasks] = useState({}) // вместо начального значения передаём функцию. она выполняется один раз при загрузке - достаёт задачи из localStorage. если там что-то есть - парсим из строки в объект, иначе возвращаем пустой объект
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleAddTasks = (newTask) => {
+  const handleAddTasks = (newTasks) => {
     const dataKey = formatDate(selectedDay) // получаем ключ выбранного дня
     const dayTasks = tasks[dataKey] || [] // берем задачи этого дня, если их нет - пустой массив
     setTasks({
       ...tasks, // копируем все остальные дни без изменений
-      [dataKey]: [newTask, ...dayTasks] // для выбранного дня - добавляем новую задачу в начало
+      [dataKey]: [...newTasks, ...dayTasks] // для выбранного дня - добавляем новую задачу в начало
     });
   };
 

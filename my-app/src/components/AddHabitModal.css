@@ -13,7 +13,7 @@
 
 .modal {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     flex-direction: column;
     align-items: center;
     background: var(--surface-surface-primary-100);
@@ -53,7 +53,6 @@
 }
 
 .modal-footer input, .modal input {
-    margin-bottom: 20px;
     font-size: 18px;
     padding: 10px;
     border-radius: 16px;
@@ -81,4 +80,12 @@
     color: var(--text-text-neutral-0);
     font-size: 16px;
     width: 100px;
+}
+
+.add-more {
+    border: none;
+    background: var(--colors-brand-primary-120);
+    color: var(--colors-neutrals-0);
+    padding: 7px;
+    border-radius: 36px;
 }
