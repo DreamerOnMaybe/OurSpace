@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import "../App.css";
 import './Calendar.css'
 import AddTaskModal  from "../components/AddTaskModal";
@@ -12,9 +13,11 @@ import Header from "../components/Header.jsx"
 import Navbar from "../components/Navbar.jsx"
 
 import calendar from "../assets/calendar.svg";
+import notesIcon from '../assets/notes.svg'
 
 
 function Calendar() {
+  const navigate = useNavigate();
   const handleMoveTask = (taskId, newDate) => {
     const [year, month, day] = newDate.split('-')
     const targetKey = `${day}.${month}.${year}`
@@ -199,6 +202,8 @@ function Calendar() {
     <div className="app-container">
       <Header
         title={`Сегодня, ${todayFormatted.slice(0, 5)}`}
+        leftIcon={notesIcon}
+        onLeftClick={() => navigate('/notes')}
         onRightClick={() => setIsMonthOpen(!isMonthOpen)}
         rightIcon={calendar}
       />

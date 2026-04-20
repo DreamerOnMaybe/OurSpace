@@ -1,18 +1,19 @@
 import settings from "../assets/settings.svg";
-import logOut from "../assets/log-out.svg";
 
-function Header({ title, onRightClick, rightIcon }) {
+function Header({ title, onRightClick, rightIcon, onLeftClick, leftIcon }) {
   return (
     <header className="header">
-      <button className="grey-btn">
-        <img src={settings} alt="Назад" />
+      <button className="grey-btn" onClick={onLeftClick}>
+        <img src={leftIcon || settings} alt="" />
       </button>
       <h2>{title}</h2>
-      <button className="grey-btn" type="submit" onClick={onRightClick}>
-        <img src={rightIcon || logOut} alt="Профиль" />
-      </button>
+      {rightIcon && (
+        <button className="grey-btn" onClick={onRightClick}>
+          <img src={rightIcon} alt="" />
+        </button>
+      )}
     </header>
   );
-} 
+}
 
 export default Header;

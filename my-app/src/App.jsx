@@ -6,6 +6,7 @@ import Home from './pages/Home.jsx'
 import Calendar from './pages/Calendar.jsx'
 import Auth from './pages/Auth.jsx'
 import Profile from './pages/Profile.jsx'
+import Notes from './pages/Notes.jsx'
 
 import { Navigate } from 'react-router-dom'
 
@@ -46,6 +47,11 @@ function App() {
         <Route path='/profile' element={
           <ProtectedRoute user={user} loading={loading}>
             <Profile />
+          </ProtectedRoute>
+        } />
+        <Route path='/notes' element={
+          <ProtectedRoute user={user} loading={loading}>
+            <Notes />
           </ProtectedRoute>
         } />
       </Routes>

@@ -27,7 +27,7 @@ function TaskDetailModal({ task, onClose, onDelete, onMove }) {
                 </div>
                 
                 <div className="bottom-btns">
-                    <button className="delete" onClick={() => { onDelete(task.id); onClose() }}>🗑 Удалить</button>
+                    <button className="delete" onClick={() => { onDelete(task.id); onClose() }}>🗑️ Удалить</button>
                     <button className="close" onClick={onClose}>Закрыть</button>
                 </div>
             </div>

@@ -12,6 +12,7 @@ import Navbar from "../components/Navbar.jsx";
 import habitsIcon from '../assets/habits-stat.svg'
 import tasksIcon from '../assets/tasks-stat.svg'
 import streakIcon from '../assets/streak-stat.svg'
+import logOut from "../assets/log-out.svg";
 
 import AvatarModal from "../components/AvatarModal.jsx";
 
@@ -150,6 +151,7 @@ function Profile() {
       <Header
         title={auth.currentUser?.displayName || "Профиль"}
         onRightClick={handleSignOut}
+        rightIcon={logOut}
       />
 
       <div className="profile-card">

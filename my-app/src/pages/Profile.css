@@ -108,7 +108,7 @@
 .habit-circle {
     width: 30px;
     height: 30px;
-    background: var(--colors-neutrals-2);
+    background: var(--colors-neutrals-0);
     display: flex;
     justify-content: center;
     border-radius: 100%;
