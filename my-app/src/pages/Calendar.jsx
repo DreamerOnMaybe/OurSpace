@@ -15,6 +15,21 @@ import calendar from "../assets/calendar.svg";
 
 
 function Calendar() {
+  const handleMoveTask = (taskId, newDate) => {
+    const [year, month, day] = newDate.split('-')
+    const targetKey = `${day}.${month}.${year}`
+
+    const currentKey = formatDate(selectedDay)
+    const task = tasks[currentKey]?.find(t => t.id === taskId)
+
+    if (!task) return
+
+    const targetTasks = tasks[targetKey] || []
+    setTasks({ 
+      ...tasks,
+      [targetKey]: [{ ...task, id: Date.now() }, ...targetTasks]
+    })
+  }
 
   const [userId, setUserId] = useState(null)
   useEffect(() => {
@@ -261,7 +276,7 @@ function Calendar() {
       {activeTab === 'tasks' ? ( // если активная вкладка tasks то показываем список задач, иначе - список заметок, пока их нету, пустая страница
         currentDayTasks.length === 0
           ? <p className='empty-text'>Задач на сегодня пока нет...</p>
-          : <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} onDelete={handleDeleteTasks}/>
+          : <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} onDelete={handleDeleteTasks} onMove={handleMoveTask}/>
       ) : (
         <textarea
           className='note-textarea'

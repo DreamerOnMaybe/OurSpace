@@ -89,3 +89,32 @@
     padding: 7px;
     border-radius: 36px;
 }
+
+.task-move {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.task-move button {
+    background: var(--colors-brand-primary-120);
+    border: none;
+    color: var(--colors-neutrals-0);
+    padding: 4px 7px;
+    border-radius: 16px;
+}
+
+.delete {
+    background: var(--colors-brand-secondary-100);
+    border: none;
+    color: var(--colors-neutrals-0);
+    padding: 4px 7px;
+    border-radius: 16px;
+    font-size: 16px;
+}
+
+.bottom-btns {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
