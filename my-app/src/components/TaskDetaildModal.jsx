@@ -10,7 +10,10 @@ function TaskDetailModal({ task, onClose, onDelete, onMove }) {
 
                 <div className="task-move">
                     <input 
-                        type="date" 
+                        type="text" 
+                        placeholder="ДД.ММ.ГГГГ"
+                        onFocus={(e) => (e.target.type = "date")}
+                        onBlur={(e) => (e.target.type = "text")}
                         value={moveDate}
                         onChange={e => setMoveDate(e.target.value)}
                     />

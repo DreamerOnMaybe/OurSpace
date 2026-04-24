@@ -5,11 +5,18 @@ import { db, auth } from '../firebase.js'
 import { onAuthStateChanged } from 'firebase/auth'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import Header from "../components/Header.jsx"
+import NoteDetailModal from '../components/NoteDetailModal.jsx'
 import './Notes.css'
+
+import plusBtn from '../assets/plus.svg'
 
 function Notes() {
   const [notes, setNotes] = useState({})
   const [userId, setUserId] = useState(null)
+
+  // состояние для модалки
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentNote, setCurrentNote] = useState({ date: '', text: '' })
 
   const navigate = useNavigate()
 
@@ -53,28 +60,66 @@ function Notes() {
     }
   }
 
+  // функция для открытия модалки
+  const handleAddNewNote = () => {
+    const today = new Date().toLocaleDateString('ru-RU'); // Получаем ДД.ММ.ГГГГ
+    setCurrentNote({ date: today, text: '' }); // Подставляем дату и пустой текст
+    setIsModalOpen(true);
+  };
+
+  // функция сохранения/редактирования
+  const handleSaveNote = async (date, newText) => {
+    const updatedNotes = { ...notes, [date]: newText } // создаём копию и обновляем текст
+    setNotes(updatedNotes) //Обновляем на экране
+
+    if (userId) {
+      const userRef = doc(db, 'users', userId)
+      await updateDoc(userRef, {
+        notes: updatedNotes
+      })
+    }
+  }
+
   return ( 
     <div className="app-container">
       <Header
         title={`Заметки`}
         leftIcon={backBtn}
         onLeftClick={() => navigate('/calendar')}
+        rightIcon={plusBtn}
+        onRightClick={handleAddNewNote}
       />
 
       <div className="notes-list">
-        {sortedNotes.length === 0
-          ? <p className='empty-text'>Заметок пока нет...</p>
-          : sortedNotes.map(([date, text]) => (
-            <div key={date} className="note-card">
-              <div className="note-card-header">
-                <span className="note-date">📅 {date}</span>
-                <button className='delete' onClick={() => handleDeleteNote(date)}>🗑️</button>
-              </div>
-              <p className="note-preview">{text}</p>
+        {sortedNotes.map(([date, text]) => (
+          <div
+            key={date}
+            className='note-card'
+            onClick={() => {
+              setCurrentNote({ date, text })
+              setIsModalOpen(true)
+            }}
+          >
+            <div className="note-card-header">
+              <span className="note-date">📅 {date}</span>
+              <button className='delete' onClick={(e) => {
+                e.stopPropagation() 
+                handleDeleteNote(date)
+              }}>🗑️</button>
             </div>
-          ))
-        }
+            <p className='note-preview'>{text}</p>
+          </div>
+        ))}
       </div>
+
+      {isModalOpen && (
+        <NoteDetailModal 
+          date={currentNote.date}
+          text={currentNote.text}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveNote}
+        />
+      )}
     </div>
   )
 }
