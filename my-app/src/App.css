@@ -60,6 +60,11 @@ body {
   min-height: 100vh;
 }
 
+button {
+  background: none;
+  border: none;
+}
+
 .header {
   display: flex;
   align-items: center;

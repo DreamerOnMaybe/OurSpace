@@ -1,3 +1,7 @@
+input {
+    height: 40px;
+}
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -13,7 +17,7 @@
 
 .modal {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     flex-direction: column;
     align-items: center;
     background: var(--surface-surface-primary-100);
@@ -117,4 +121,32 @@
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.time-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.time-selection label {
+    color: var(--colors-neutrals-0);
+}
+
+.set-time {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.time-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.time-actions button {
+    background: var(--colors-brand-primary-120);
+    color: var(--colors-neutrals-0);
+    padding: 5px;
+    border-radius: 16px;
 }

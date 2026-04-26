@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 function AddTaskModal({ onAdd, onClose }) {
   const [tasks, setTasks] = useState([""]);
+  const [taskTime, setTaskTime] = useState("")
 
   // обновление конкретного инпута по индексу
   const handleChange = (index, value) => {
@@ -21,7 +22,8 @@ function AddTaskModal({ onAdd, onClose }) {
     if (filled.length === 0) return;
     const newTasks = filled.map(text => ({
       id: Date.now() + Math.random(),
-      text,
+      text: text,
+      time: taskTime || null,
       completed: false
     }))
     onAdd(newTasks)
@@ -42,6 +44,16 @@ function AddTaskModal({ onAdd, onClose }) {
             onChange={(e) => handleChange(index, e.target.value)}
           />
         ))}
+
+        <div className="time-selection">
+          <label>🔔 Напомнить в: </label>
+          <input 
+            type="time" 
+            value={taskTime} 
+            onChange={(e) => setTaskTime(e.target.value)} 
+            className="modern-time-input"
+          />
+        </div>
 
         <button className="add-more" onClick={handleAddInput}>+ Добавить ещё</button>
 

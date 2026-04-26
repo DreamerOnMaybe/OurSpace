@@ -6,7 +6,7 @@ import AddTaskModal  from "../components/AddTaskModal";
 import TaskList from "../components/TaskList";
 
 import { db, auth } from '../firebase'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 
 import Header from "../components/Header.jsx"
@@ -135,12 +135,22 @@ function Calendar() {
   useEffect(() => {
     if (!userId || !dataLoaded) return
 
-    const saveTasks = async () => {
-      await setDoc(doc(db, 'users', userId), { tasks }, { merge: true })
+    const saveData = async () => {
+      try {
+        await setDoc(doc(db, 'users', userId), {
+          tasks,
+          notes
+        }, { merge: true })
+        console.log('Данные синхронизированы')
+      } catch (e) {
+        console.error('Ошибка сохранения:', e)
+      }
     }
 
-    saveTasks()
-  }, [tasks, userId, dataLoaded])
+    const timeoutId = setTimeout(saveData, 1000);
+    return () => clearTimeout(timeoutId);
+
+  }, [tasks, notes, userId, dataLoaded])
 
   useEffect(() => {
     if (!userId || !dataLoaded) return
@@ -196,6 +206,25 @@ function Calendar() {
 
   const nextMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)) // функция для переключения на следующий месяц
+  }
+
+  const handleUpdateTime = async (taskId, newTime) => {
+    const dataKey = formatDate(selectedDay)
+    const dayTasks = tasks[dataKey] || []
+
+    const updateDayTasks = dayTasks.map(t => 
+      t.id === taskId ? { ...t, time: newTime } : t
+    )
+
+    const newTasksState = {
+      ...tasks, 
+      [dateKey]: updateDayTasks
+    }
+
+    setTasks(newTasksState)
+
+    const userRef = doc(db, 'users', userId)
+    await updateDoc(userRef, { tasks: newTasksState })
   }
 
   return (
@@ -281,7 +310,7 @@ function Calendar() {
       {activeTab === 'tasks' ? ( // если активная вкладка tasks то показываем список задач, иначе - список заметок, пока их нету, пустая страница
         currentDayTasks.length === 0
           ? <p className='empty-text'>Задач на сегодня пока нет...</p>
-          : <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} onDelete={handleDeleteTasks} onMove={handleMoveTask}/>
+          : <TaskList tasks={currentDayTasks} onToggle={handleToggleTask} onDelete={handleDeleteTasks} onMove={handleMoveTask} onUpdateTime={handleUpdateTime}/>
       ) : (
         <textarea
           className='note-textarea'

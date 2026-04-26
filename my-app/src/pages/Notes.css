@@ -33,7 +33,7 @@
     -webkit-line-clamp: 3; /* Количество строк, которые нужно оставить */
     -webkit-box-orient: vertical;  
     overflow: hidden;
-    text-overflow: ellipsis; /* Добавляет те самые три точки (...) */
+    text-overflow: ellipsis;
 
     min-height: 4em;
 }
