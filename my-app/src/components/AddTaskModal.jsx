@@ -1,8 +1,18 @@
 import React, { useState } from "react";
 
 function AddTaskModal({ onAdd, onClose }) {
+  const HOURS = Array.from({ length: 24 }, (_, i) =>
+    i.toString().padStart(2, "0"),
+  );
+  const MINUTES = Array.from({ length: 60 }, (_, i) =>
+    i.toString().padStart(2, "0"),
+  );
+
+  const [hour, setHour] = useState("12");
+  const [minute, setMinute] = useState("00");
+  const [isTimeEnabled, setIsTimeEnabled] = useState(false);
+
   const [tasks, setTasks] = useState([""]);
-  const [taskTime, setTaskTime] = useState("")
 
   // обновление конкретного инпута по индексу
   const handleChange = (index, value) => {
@@ -20,13 +30,17 @@ function AddTaskModal({ onAdd, onClose }) {
   const handleAdd = () => {
     const filled = tasks.filter((t) => t.trim() !== "");
     if (filled.length === 0) return;
-    const newTasks = filled.map(text => ({
+
+    // Склеиваем время только если пользователь включил опцию
+    const finalTime = isTimeEnabled ? `${hour}:${minute}` : null;
+
+    const newTasks = filled.map((text) => ({
       id: Date.now() + Math.random(),
       text: text,
-      time: taskTime || null,
-      completed: false
-    }))
-    onAdd(newTasks)
+      time: finalTime,
+      completed: false,
+    }));
+    onAdd(newTasks);
     onClose();
   };
 
@@ -46,16 +60,45 @@ function AddTaskModal({ onAdd, onClose }) {
         ))}
 
         <div className="time-selection">
-          <label>🔔 Напомнить в: </label>
-          <input 
-            type="time" 
-            value={taskTime} 
-            onChange={(e) => setTaskTime(e.target.value)} 
-            className="modern-time-input"
-          />
+          <div className="time-toggle-container">
+            <span>🔔 Напомнить?</span>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={isTimeEnabled}
+                onChange={(e) => setIsTimeEnabled(e.target.checked)}
+              />
+              <span className="slider round"></span>
+            </label>
+          </div>
+
+          {isTimeEnabled && (
+            <div className="custom-time-picker animated-fade-in">
+              <select value={hour} onChange={(e) => setHour(e.target.value)}>
+                {HOURS.map((h) => (
+                  <option key={h} value={h}>
+                    {h}
+                  </option>
+                ))}
+              </select>
+              <span className="separator">:</span>
+              <select
+                value={minute}
+                onChange={(e) => setMinute(e.target.value)}
+              >
+                {MINUTES.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
-        <button className="add-more" onClick={handleAddInput}>+ Добавить ещё</button>
+        <button className="add-more" onClick={handleAddInput}>
+          + Добавить ещё
+        </button>
 
         <div className="add-modal-btns">
           <button className="close" onClick={onClose}>

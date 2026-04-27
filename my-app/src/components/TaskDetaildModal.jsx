@@ -1,8 +1,24 @@
 import { useState } from "react";
 
 function TaskDetailModal({ task, onClose, onDelete, onMove, onUpdateTime }) {
+  const HOURS = Array.from({ length: 24 }, (_, i) =>
+    i.toString().padStart(2, "0"),
+  );
+  const MINUTES = Array.from({ length: 60 }, (_, i) =>
+    i.toString().padStart(2, "0"),
+  );
+
+  const initialTime = task.time ? task.time.split(":") : ["12", "00"];
+  const [hour, setHour] = useState(initialTime[0]);
+  const [minute, setMinute] = useState(initialTime[1]);
+
   const [moveDate, setMoveDate] = useState("");
-  const [taskTime, setTaskTime] = useState(task.time || "");
+
+  const handleSaveTime = () => {
+    const finalTime = `${hour}:${minute}`;
+    onUpdateTime(task.id, finalTime);
+    onClose();
+  };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -32,24 +48,31 @@ function TaskDetailModal({ task, onClose, onDelete, onMove, onUpdateTime }) {
 
         <div className="set-time">
           <h3>Напоминание</h3>
-          <input
-            type="time"
-            value={taskTime}
-            onChange={(e) => setTaskTime(e.target.value)}
-          />
-          <div className="time-actions">
-            <button
-              onClick={() => {
-                onUpdateTime(task.id, taskTime);
-                onClose();
-              }}
-            >
-              ✅ Сохранить
-            </button>
+          <div className="custom-time-picker">
+            <select value={hour} onChange={(e) => setHour(e.target.value)}>
+              {HOURS.map((h) => (
+                <option key={h} value={h}>
+                  {h}
+                </option>
+              ))}
+            </select>
 
-            {/* Кнопка для удаления времени */}
+            <span className="separator">:</span>
+
+            <select value={minute} onChange={(e) => setMinute(e.target.value)}>
+              {MINUTES.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="time-actions">
+            <button onClick={handleSaveTime}>
+              ✅ Сохранить время
+            </button>
             <button
-              className="clear-time"
               onClick={() => {
                 onUpdateTime(task.id, null);
                 onClose();
