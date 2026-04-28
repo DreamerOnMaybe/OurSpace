@@ -16,8 +16,8 @@ import water from "../assets/water.svg";
 import sunny from "../assets/sunny.svg";
 import wind from "../assets/wind.svg";
 import humidity from "../assets/humidity.svg";
-import moonIcon from '../assets/moon.svg'
-import sunIcon from '../assets/sun.svg'
+import moonIcon from "../assets/moon.svg";
+import sunIcon from "../assets/sun.svg";
 
 const cityName = "Omsk";
 const apiKey = import.meta.env.VITE_API_KEY;
@@ -32,20 +32,20 @@ const defaultHabits = [
 ];
 
 function Home() {
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [userId, setUserId] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light')
-  }
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
-  const themeIcon = theme === 'light' ? moonIcon : sunIcon
+  const themeIcon = theme === "light" ? moonIcon : sunIcon;
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -60,6 +60,7 @@ function Home() {
   const maxGlasses = 10; // максимум 10 стаканов = 2 литра
   const progress = 282.7 - (282.7 * glasses) / maxGlasses; // вычисляем strokeDashoffset для SVG круга
   const [weather, setWeather] = useState(null); // данные погоды, null пока не загрузилась
+  const [userCity, setUserCity] = useState("");
   const recomendation =
     weather?.main.temp >= 0
       ? "Хорошая погода для прогулки ⛅️"
@@ -83,6 +84,34 @@ function Home() {
     };
     fetchWeather();
   }, []);
+
+  useEffect(() => {
+    const getCityAndWeather = async () => {
+      if (!userId) return;
+
+      try {
+        // Тянем город из firestore
+        const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
+        const cityFromDb = userDoc.data()?.city || 'Moscow';
+        setUserCity(cityFromDb);
+
+        // загружаем погоду для этого города
+        const API_KEY = import.meta.env.VITE_API_KEY;
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityFromDb}&appid=${API_KEY}&units=metric`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.cod === 200) {
+          setWeather(data);
+        }
+      } catch (err) {
+        console.error("Ошибка погоды:", err);
+      }
+    };
+    getCityAndWeather();
+  });
+
   useEffect(() => {
     if (!userId) return;
 
@@ -104,10 +133,12 @@ function Home() {
         if (savedDate !== today) {
           let currentStreak = data.streak || 0;
 
-          const wasYesterdayProductive = (data.habits || []).some(h => h.completed || h.minutes > 0);
-          
+          const wasYesterdayProductive = (data.habits || []).some(
+            (h) => h.completed || h.minutes > 0,
+          );
+
           if (savedDate !== yesterday || !wasYesterdayProductive) {
-            currentStreak = 0
+            currentStreak = 0;
           }
 
           const resetHabits = (data.habits || defaultHabits).map((h) => ({
@@ -166,26 +197,29 @@ function Home() {
   const handleUpdateMinutes = async (id, amount) => {
     const today = new Date().toLocaleDateString();
 
-    const updateHabits = habits.map(habit => {
-      if(habit.id !== id) return habit
-      const newMinutes = Math.max(0, habit.minutes + amount)
+    const updateHabits = habits.map((habit) => {
+      if (habit.id !== id) return habit;
+      const newMinutes = Math.max(0, habit.minutes + amount);
       return {
         ...habit,
         minutes: newMinutes,
-        log: { ...habit.log, [today]: { minutes: newMinutes, completed: newMinutes > 0 } }
-      }
-    })
+        log: {
+          ...habit.log,
+          [today]: { minutes: newMinutes, completed: newMinutes > 0 },
+        },
+      };
+    });
     setHabits(updateHabits);
 
-    const isFirstActivityToday = habits.every(h => !h.completed && h.minutes === 0) && glasses === 0
+    const isFirstActivityToday =
+      habits.every((h) => !h.completed && h.minutes === 0) && glasses === 0;
     if (isFirstActivityToday && amount > 0) {
-      const userRef = doc(db, 'users', userId)
-      const userSnap = await getDoc(userRef)
-      const currentStreak = userSnap.data()?.streak || 0
+      const userRef = doc(db, "users", userId);
+      const userSnap = await getDoc(userRef);
+      const currentStreak = userSnap.data()?.streak || 0;
 
-      await setDoc(userRef, { streak: currentStreak + 1 }, { merge: true })
+      await setDoc(userRef, { streak: currentStreak + 1 }, { merge: true });
     }
-
   };
 
   return (
@@ -288,6 +322,9 @@ function Home() {
       </div>
 
       <div className="weather-card">
+        <div className="weather-header">
+          <span className="city-name">📍 {userCity}</span>
+        </div>
         <div className="weather-statistic">
           <div className="weather-card-item">
             <p className="temp card-text">

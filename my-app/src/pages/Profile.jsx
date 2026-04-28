@@ -149,7 +149,7 @@ function Profile() {
   return (
     <div className="app-container">
       <Header
-        title={auth.currentUser?.displayName || "Профиль"}
+        title={"Профиль"}
         onRightClick={handleSignOut}
         rightIcon={logOut}
       />
