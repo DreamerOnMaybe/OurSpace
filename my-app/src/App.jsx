@@ -7,6 +7,7 @@ import Calendar from './pages/Calendar.jsx'
 import Auth from './pages/Auth.jsx'
 import Profile from './pages/Profile.jsx'
 import Notes from './pages/Notes.jsx'
+import Settings from './pages/Settings.jsx'
 
 import { Navigate } from 'react-router-dom'
 
@@ -54,6 +55,7 @@ function App() {
             <Notes />
           </ProtectedRoute>
         } />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </BrowserRouter>
   )

@@ -1,0 +1,36 @@
+.loading-screen {
+    display: flex;
+    justify-content: center;
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: 2px solid var(--colors-brand-primary-100);
+    padding: 7px;
+    border-radius: 16px;
+}
+
+.settings-group input, textarea {
+    border-radius: 16px;
+    outline: none;
+    padding: 5px;
+    border: 1px solid #333;
+}
+
+.save {
+    background: var(--colors-success);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 30px;
+    color: var(--text-text-neutral-0);
+    font-size: 16px;
+}

@@ -17,8 +17,10 @@ import logOut from "../assets/log-out.svg";
 import AvatarModal from "../components/AvatarModal.jsx";
 
 import defaultAvatar from "../assets/account.png";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
+  const navigate = useNavigate()
   const [avatar, setAvatar] = useState(null)
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
@@ -76,25 +78,8 @@ function Profile() {
     streak: 0,
   });
 
-  const [isEditing, setIsEditing] = useState(false); // состояние редактирования текста профиля
-  const [editData, setEditData] = useState({ name: "", bio: "" }); // состояние для изменений
-
   const [userId, setUserId] = useState(null); // состояние для id текущего пользователя
   const [userData, setUserData] = useState({ name: "", bio: "" }); // состояние для данных профиля - имя и био
-
-  const handleSave = async () => {
-    // функция сохранения
-    await setDoc(
-      doc(db, "users", userId),
-      {
-        name: editData.name,
-        bio: editData.bio,
-      },
-      { merge: true },
-    );
-    setUserData(editData);
-    setIsEditing(false);
-  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -152,6 +137,7 @@ function Profile() {
         title={"Профиль"}
         onRightClick={handleSignOut}
         rightIcon={logOut}
+        onLeftClick={() => navigate('/settings')}
       />
 
       <div className="profile-card">
@@ -163,46 +149,10 @@ function Profile() {
           <div className="avatar-edit">📷</div>
         </div>
         <div className="profile-info">
-          {isEditing ? (
-            <>
-              <input
-                value={editData.name}
-                onChange={(e) =>
-                  setEditData({ ...editData, name: e.target.value })
-                }
-                placeholder="Ваше имя"
-              />
-              <input
-                value={editData.bio}
-                onChange={(e) =>
-                  setEditData({ ...editData, bio: e.target.value })
-                }
-                placeholder="О себе"
-              />
-              <div className="set-editing-btns">
-                <button className="close" onClick={() => setIsEditing(false)}>
-                  Отмена
-                </button>
-                <button onClick={handleSave}>Сохранить</button>
-              </div>
-            </>
-          ) : (
-            <>
-              <h2 className="profile-name">{userData.name || "Без имени"}</h2>
-              <p className="profile-desc">
-                {userData.bio || "Добавьте описание"}
-              </p>
-              <button
-                className="editing-btn"
-                onClick={() => {
-                  setEditData(userData);
-                  setIsEditing(true);
-                }}
-              >
-                ✏️
-              </button>
-            </>
-          )}
+          <h2 className="profile-name">{userData.name || "Без имени"}</h2>
+          <p className="profile-desc">
+            {userData.bio || "Добавьте описание"}
+          </p>
         </div>
       </div>
 

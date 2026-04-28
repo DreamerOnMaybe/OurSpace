@@ -45,7 +45,6 @@ function Auth() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setMessage("");
     try {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
@@ -56,22 +55,27 @@ function Auth() {
           password,
         );
         const user = userCredential.user;
-        await updateProfile(user, { displayName: name });
 
-        await setDoc(
-          doc(db, "users", user.uid),
-          {
-            uid: user.id,
+        console.log("Аккаунт создан, начинаем обновлять профиль...");
+        
+        try {
+          await updateProfile(user, { displayName: name })
+
+          await setDoc(doc(db, 'users', user.uid), {
+            uid: user.uid,
             name: name,
             email: email,
-            city: city,
-            createdAt: new Date(),
-          },
-          { merge: true },
-        );
+            city: city || 'Moscow',
+            createdAt: new Date()
+          }, { merge: true })
+          console.log('Firestore Обновлен')
+        } catch (dbError) {
+          console.error('Ошибка при записи в базу:', dbError)
+        }
       }
       navigate("/");
     } catch (error) {
+      console.error("Ошибка Firebase Auth:", error.code, error.message);
       setError(getErrorMessage(error.code));
     } finally {
       setLoading(false);
