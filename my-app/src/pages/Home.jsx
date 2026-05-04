@@ -7,9 +7,9 @@ import { onAuthStateChanged } from "firebase/auth";
 import "../App.css";
 import HabitList from "../components/HabitList";
 import AddHabitModal from "../components/AddHabitModal";
-
 import Header from "../components/Header.jsx";
 import Navbar from "../components/Navbar.jsx";
+import SettingsModal from "../components/SettingsModal.jsx";
 
 import walk from "../assets/walk.svg";
 import water from "../assets/water.svg";
@@ -35,6 +35,7 @@ function Home() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [userId, setUserId] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -57,7 +58,8 @@ function Home() {
   const navigate = useNavigate();
   const [glasses, setGlasses] = useState(0); // количество выпитых стаканов, начальное значение 0
   const liters = (glasses * 0.2).toFixed(2); // переводим стаканы в литры, toFixed(2) - два знака после запятой
-  const maxGlasses = 10; // максимум 10 стаканов = 2 литра
+  const [maxGlasses, setMaxGlasses] = useState(10)
+  const [maxSteps, setMaxSteps] = useState(10000)
   const progress = 282.7 - (282.7 * glasses) / maxGlasses; // вычисляем strokeDashoffset для SVG круга
   const [weather, setWeather] = useState(null); // данные погоды, null пока не загрузилась
   const [userCity, setUserCity] = useState("");
@@ -147,6 +149,8 @@ function Home() {
             completed: false,
           }));
 
+          setMaxGlasses(data.maxGlasses || 10)
+          setMaxSteps(data.maxSteps || 10000)
           setHabits(resetHabits);
           setGlasses(0);
 
@@ -176,6 +180,8 @@ function Home() {
           habits,
           glasses,
           date: today,
+          maxGlasses,
+          maxSteps,
         },
         { merge: true },
       );
@@ -221,6 +227,10 @@ function Home() {
       await setDoc(userRef, { streak: currentStreak + 1 }, { merge: true });
     }
   };
+  const handleSaveSettings = (newGlasses, newSteps) => {
+    setMaxGlasses(newGlasses)
+    setMaxSteps(newSteps)
+  }
 
   return (
     <div className="app-container">
@@ -228,6 +238,7 @@ function Home() {
         title={"Сегодня"}
         onRightClick={toggleTheme}
         rightIcon={themeIcon}
+        onLeftClick={() => setIsSettingsOpen(true)}
       />
 
       <div className="stats-grid">
@@ -264,6 +275,7 @@ function Home() {
             <div className="steps-count">
               <strong>0</strong>
               <span>Шагов</span>
+              <span className="steps-goal">из {maxSteps}</span>
             </div>
           </div>
         </div>
@@ -302,15 +314,16 @@ function Home() {
                 />
               </svg>
               <div className="water-amount">
-                <p>{liters}</p>
-                <span>Литров</span>
+                <p>{glasses}</p>
+                <span>Стаканов </span>
+                <span>из {maxGlasses}</span>
               </div>
             </div>
             <div className="water-counter">
               <button onClick={() => glasses > 0 && setGlasses(glasses - 1)}>
                 -
               </button>
-              <span>{glasses} ст.</span>
+              <span>{liters} л.</span>
               <button
                 onClick={() => glasses < maxGlasses && setGlasses(glasses + 1)}
               >
@@ -363,6 +376,14 @@ function Home() {
         <AddHabitModal
           onAdd={handleAddHabit}
           onClose={() => setIsModalOpen(false)}
+        />
+      )}
+      {isSettingsOpen && (
+        <SettingsModal 
+          maxGlasses={maxGlasses}
+          maxSteps={maxSteps}
+          onSave={handleSaveSettings}
+          onClose={() => setIsSettingsOpen(false)}
         />
       )}
     </div>

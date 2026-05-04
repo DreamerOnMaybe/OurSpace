@@ -183,6 +183,10 @@ input {
   color: var(--current-text);
 }
 
+label {
+  color: var(--colors-neutrals-0);
+}
+
 /* Стили для кнопок действий */
 .time-actions {
   display: flex;

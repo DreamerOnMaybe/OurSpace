@@ -121,10 +121,12 @@ button {
 }
 
 .steps-count {
-  font-size: clamp(16px, 3vw, 18px);
+  font-size: clamp(16px, 5vw, 18px);
+  top: 10px;
   position: absolute;
   display: flex;
   flex-direction: column;
+  font-weight: 400;
 }
 
 .coral-card {
@@ -244,4 +246,8 @@ button {
   margin-top: 20px;
   text-align: center;
   opacity: 0.5;
+}
+
+.steps-goal {
+  font-size: 14px;
 }
