@@ -1,3 +1,5 @@
+
+
 .habit-card {
     background: var(--colors-brand-primary-100);
     padding: 10px 15px;
@@ -27,7 +29,7 @@
 .minutes-counter button {
     font-size: 16px;
     font-weight: 700;
-    background: var(--colors-brand-secondary-100);
+    background: var(--colors-success);
     padding: 5px;
     border-radius: 50%;
     border: none;
@@ -37,4 +39,40 @@
     align-items: center;
     justify-content: center;
     line-height: 1;
+}
+
+.delete-habit-btn {
+    background: var(--colors-brand-secondary-100);
+    padding: 3px;
+    border-radius: 16px;
+    position: absolute;
+    right: -10px;
+    top: -15px;
+}
+
+.task-card {
+    position: relative;
+    overflow: visible;
+}
+
+.confirm-btns {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.confirm-yes {
+    background: var(--colors-success);
+    padding: 5px;
+    border-radius: 30px;
+    color: var(--text-text-neutral-0);
+    font-size: 14px;
+}
+
+.confirm-no {
+    background: var(--colors-brand-secondary-100);
+    padding: 5px;
+    border-radius: 16px;
+    color: var(--text-text-neutral-0);
+    font-size: 14px;
 }

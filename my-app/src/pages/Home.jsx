@@ -200,6 +200,11 @@ function Home() {
     );
   };
 
+  const handleDeleteHabit = (id) => {
+    const updatedHabits = habits.filter(habit => habit.id !== id)
+    setHabits(updatedHabits)
+  }
+
   const handleUpdateMinutes = async (id, amount) => {
     const today = new Date().toLocaleDateString();
 
@@ -364,6 +369,7 @@ function Home() {
           habits={habits}
           onToggle={handleToggleHabit}
           onUpdateMinutes={handleUpdateMinutes}
+          onDelete={handleDeleteHabit}
         />
       )}
 

@@ -19,6 +19,10 @@
     border-radius: 16px;
 }
 
+.settings-group label {
+    color: var(--current-text);
+}
+
 .settings-group input, textarea {
     border-radius: 16px;
     outline: none;
