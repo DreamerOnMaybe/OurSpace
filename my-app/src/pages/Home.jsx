@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { db } from "../firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -19,9 +18,7 @@ import humidity from "../assets/humidity.svg";
 import moonIcon from "../assets/moon.svg";
 import sunIcon from "../assets/sun.svg";
 
-const cityName = "Omsk";
 const apiKey = import.meta.env.VITE_API_KEY;
-const currentUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric&lang=ru`;
 
 const defaultHabits = [
   { id: 1, name: "Прогулка", icon: "🚶", minutes: 0, log: {} },
@@ -35,7 +32,7 @@ function Home() {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [userId, setUserId] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -55,12 +52,12 @@ function Home() {
     return () => unsubscribe();
   }, []);
 
-  const navigate = useNavigate();
   const [glasses, setGlasses] = useState(0); // количество выпитых стаканов, начальное значение 0
   const liters = (glasses * 0.2).toFixed(2); // переводим стаканы в литры, toFixed(2) - два знака после запятой
-  const [maxGlasses, setMaxGlasses] = useState(10)
-  const [maxSteps, setMaxSteps] = useState(10000)
+  const [maxGlasses, setMaxGlasses] = useState(10);
+  const [maxSteps, setMaxSteps] = useState(10000);
   const progress = 282.7 - (282.7 * glasses) / maxGlasses; // вычисляем strokeDashoffset для SVG круга
+  // const progressSteps = 282.7 - (282.7 * currentSteps) / maxSteps;
   const [weather, setWeather] = useState(null); // данные погоды, null пока не загрузилась
   const [userCity, setUserCity] = useState("");
   const recomendation =
@@ -74,100 +71,114 @@ function Home() {
   };
 
   useEffect(() => {
-    const fetchWeather = async () => {
+    const fetchWeather = async (city) => {
       try {
-        const res = await fetch(currentUrl);
-        if (!res.ok) throw new Error("Ошибка сети");
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ru`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Город не найден");
         const data = await res.json();
         setWeather(data);
-      } catch (err) {
-        console.error("Не удалось загрузить погоду:", err);
-      }
-    };
-    fetchWeather();
-  }, []);
-
-  useEffect(() => {
-    const getCityAndWeather = async () => {
-      if (!userId) return;
-
-      try {
-        // Тянем город из firestore
-        const userDoc = await getDoc(doc(db, "users", auth.currentUser.uid));
-        const cityFromDb = userDoc.data()?.city || 'Moscow';
-        setUserCity(cityFromDb);
-
-        // загружаем погоду для этого города
-        const API_KEY = import.meta.env.VITE_API_KEY;
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityFromDb}&appid=${API_KEY}&units=metric`;
-
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (data.cod === 200) {
-          setWeather(data);
-        }
+        setUserCity(data.name); // ← используем имя города из API, а не из БД (оно точнее!)
       } catch (err) {
         console.error("Ошибка погоды:", err);
+        // Можно оставить старый город или показать дефолтный
+        setUserCity(city);
+        setWeather(null);
       }
     };
-    getCityAndWeather();
-  });
+
+    if (userId && userCity) {
+      fetchWeather(userCity);
+    } else if (!userId) {
+      fetchWeather("Omsk"); // гость
+    }
+  }, [userId, userCity]);
 
   useEffect(() => {
     if (!userId) return;
 
-    const loadData = async () => {
-      const docRef = doc(db, "users", userId);
-      const docSnap = await getDoc(docRef);
+    const loadUserData = async () => {
+      try {
+        const userDocRef = doc(db, "users", userId);
+        const userDocSnap = await getDoc(userDocRef);
 
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const savedDate = data.date;
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
 
-        const now = new Date();
-        const today = now.toLocaleDateString();
+          // 1. Город
+          const cityFromDb = data.city || "Moscow";
+          setUserCity(cityFromDb); // триггерует погоду
 
-        const yesterdayDate = new Date();
-        yesterdayDate.setDate(now.getDate() - 1);
-        const yesterday = yesterdayDate.toLocaleDateString();
+          // 2. Дата и сброс привычек
+          const savedDate = data.date;
+          const now = new Date();
+          const today = now.toLocaleDateString();
+          const yesterday = new Date(now);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toLocaleDateString();
 
-        if (savedDate !== today) {
-          let currentStreak = data.streak || 0;
+          if (savedDate !== today) {
+            let currentStreak = data.streak || 0;
 
-          const wasYesterdayProductive = (data.habits || []).some(
-            (h) => h.completed || h.minutes > 0,
-          );
+            const wasYesterdayProductive = (data.habits || []).some(
+              (h) => h.completed || h.minutes > 0,
+            );
 
-          if (savedDate !== yesterday || !wasYesterdayProductive) {
-            currentStreak = 0;
+            if (savedDate !== yesterdayStr || !wasYesterdayProductive) {
+              currentStreak = 0;
+            }
+
+            const resetHabits = (data.habits || defaultHabits).map((h) => ({
+              ...h,
+              minutes: 0,
+              completed: false,
+            }));
+
+            setHabits(resetHabits);
+            setGlasses(0);
+
+            // Обновляем стрик и дату
+            await setDoc(
+              userDocRef,
+              { streak: currentStreak, date: today },
+              { merge: true },
+            );
+          } else {
+            setHabits(data.habits || defaultHabits);
+            setGlasses(data.glasses || 0);
           }
 
-          const resetHabits = (data.habits || defaultHabits).map((h) => ({
-            ...h,
-            minutes: 0,
-            completed: false,
-          }));
-
-          setMaxGlasses(data.maxGlasses || 10)
-          setMaxSteps(data.maxSteps || 10000)
-          setHabits(resetHabits);
-          setGlasses(0);
-
-          // Обновляем стрик в базе сразу при смене дня
-          await setDoc(
-            docRef,
-            { streak: currentStreak, date: today },
-            { merge: true },
-          );
+          // 3. Настройки
+          setMaxGlasses(data.maxGlasses || 10);
+          setMaxSteps(data.maxSteps || 10000);
         } else {
-          setHabits(data.habits || defaultHabits);
-          setGlasses(data.glasses || 0);
+          // Если пользователя нет — создать профиль по умолчанию
+          await setDoc(userDocRef, {
+            habits: defaultHabits,
+            glasses: 0,
+            streak: 0,
+            date: new Date().toLocaleDateString(),
+            maxGlasses: 10,
+            maxSteps: 10000,
+            city: "Omsk",
+          });
+          setUserCity("Omsk");
+          setHabits(defaultHabits);
+          setGlasses(0);
         }
+
+        setDataLoaded(true);
+      } catch (err) {
+        console.error("Ошибка при загрузке данных:", err);
+        // Фолбэк
+        setUserCity("Omsk");
+        setHabits(defaultHabits);
+        setGlasses(0);
+        setDataLoaded(true);
       }
-      setDataLoaded(true);
     };
-    loadData();
+
+    loadUserData();
   }, [userId]);
   useEffect(() => {
     if (!userId || !dataLoaded) return;
@@ -201,12 +212,16 @@ function Home() {
   };
 
   const handleDeleteHabit = (id) => {
-    const updatedHabits = habits.filter(habit => habit.id !== id)
-    setHabits(updatedHabits)
-  }
+    const updatedHabits = habits.filter((habit) => habit.id !== id);
+    setHabits(updatedHabits);
+  };
 
   const handleUpdateMinutes = async (id, amount) => {
     const today = new Date().toLocaleDateString();
+
+    // Проверяем ДО обновления
+    const isFirstActivityToday =
+      habits.every((h) => !h.completed && h.minutes === 0) && glasses === 0;
 
     const updateHabits = habits.map((habit) => {
       if (habit.id !== id) return habit;
@@ -220,11 +235,10 @@ function Home() {
         },
       };
     });
+
     setHabits(updateHabits);
 
-    const isFirstActivityToday =
-      habits.every((h) => !h.completed && h.minutes === 0) && glasses === 0;
-    if (isFirstActivityToday && amount > 0) {
+    if (isFirstActivityToday && amount > 0 && userId) {
       const userRef = doc(db, "users", userId);
       const userSnap = await getDoc(userRef);
       const currentStreak = userSnap.data()?.streak || 0;
@@ -233,9 +247,24 @@ function Home() {
     }
   };
   const handleSaveSettings = (newGlasses, newSteps) => {
-    setMaxGlasses(newGlasses)
-    setMaxSteps(newSteps)
-  }
+    setMaxGlasses(newGlasses);
+    setMaxSteps(newSteps);
+  };
+
+  useEffect(() => {
+    if (!userId || !dataLoaded) return;
+
+    const timer = setTimeout(async () => {
+      const today = new Date().toLocaleDateString();
+      await setDoc(
+        doc(db, "users", userId),
+        { habits, glasses, date: today, maxGlasses, maxSteps },
+        { merge: true },
+      );
+    }, 1000); // Сохраняем не чаще раза в секунду
+
+    return () => clearTimeout(timer);
+  }, [habits, glasses, maxGlasses, maxSteps, userId, dataLoaded]);
 
   return (
     <div className="app-container">
@@ -264,18 +293,19 @@ function Home() {
                 fill="none"
               />
               {/* Круг прогресса */}
-              <circle
-              // cx="50"
-              // cy="50"
-              // r="45"
-              // stroke="white"
-              // strokeWidth="8"
-              // fill="none"
-              // strokeDasharray="282.7"
-              // strokeDashoffset="70" /* Это число меняет длину полоски */
-              // strokeLinecap="round"
-              // transform="rotate(-90 50 50)" /* Разворачиваем, чтобы начиналось сверху */
-              />
+              {/* <circle
+                className="steps-progress"
+                cx="50"
+                cy="50"
+                r="45"
+                stroke="white"
+                strokeWidth="8"
+                fill="none"
+                strokeDasharray="282.7"
+                strokeDashoffset={progressSteps}
+                strokeLinecap="round"
+                transform="rotate(-90 50 50)"
+              /> */}
             </svg>
             <div className="steps-count">
               <strong>0</strong>
@@ -385,7 +415,7 @@ function Home() {
         />
       )}
       {isSettingsOpen && (
-        <SettingsModal 
+        <SettingsModal
           maxGlasses={maxGlasses}
           maxSteps={maxSteps}
           onSave={handleSaveSettings}
