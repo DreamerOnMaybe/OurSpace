@@ -12,7 +12,24 @@ import Settings from './pages/Settings.jsx'
 import { Navigate } from 'react-router-dom'
 
 function ProtectedRoute({ user, loading, children }) {
-  if (loading) return null
+  if (loading) {
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        style={{
+          display: 'grid',
+          placeItems: 'center',
+          minHeight: '100vh',
+          margin: 0,
+          fontFamily: 'system-ui, sans-serif',
+          color: '#465A54',
+        }}
+      >
+        Загрузка…
+      </div>
+    )
+  }
   if (user === null) {
     return <Navigate to="/auth" />
   }
