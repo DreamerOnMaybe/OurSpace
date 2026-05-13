@@ -121,14 +121,16 @@ function Calendar() {
     const loadData = async () => {
       const docRef = doc(db, 'users', userId)
       const docSnap = await getDoc(docRef)
-      console.log('userId:', userId)
-      console.log('docSnap exists:', docSnap.exists())
-      console.log('data:', docSnap.data())
+  
       if (docSnap.exists()) {
+        const data = docSnap.data()
         setTasks(docSnap.data().tasks || {})
         setNotes(docSnap.data().notes || {})
-        setDataLoaded(true)
+      } else {
+        setTasks({})
+        setNotes({})
       }
+      setDataLoaded(true)
     }
     loadData()
   }, [userId])
@@ -141,7 +143,6 @@ function Calendar() {
           tasks,
           notes
         }, { merge: true })
-        console.log('Данные синхронизированы')
       } catch (e) {
         console.error('Ошибка сохранения:', e)
       }

@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   updateProfile,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence,
+  onAuthStateChanged,
 } from "firebase/auth";
 import "./Auth.css";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +27,15 @@ function Auth() {
   const [message, setMessage] = useState(""); // для уведомлений об отправке письма
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true); // состояние для чекбокса
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        navigate('/', { replace: true })
+      }
+    })
+    return () => unsubscribe()
+  }, [navigate])
 
   const getErrorMessage = (code) => {
     switch (code) {
@@ -46,6 +59,10 @@ function Auth() {
     setLoading(true);
     setError("");
     try {
+      await setPersistence(
+        auth,
+        rememberMe ? browserLocalPersistence : browserSessionPersistence
+      )
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
@@ -56,8 +73,6 @@ function Auth() {
         );
         const user = userCredential.user;
 
-        console.log("Аккаунт создан, начинаем обновлять профиль...");
-        
         try {
           await updateProfile(user, { displayName: name })
 
@@ -68,7 +83,7 @@ function Auth() {
             city: city || 'Moscow',
             createdAt: new Date()
           }, { merge: true })
-          console.log('Firestore Обновлен')
+          navigate('/')
         } catch (dbError) {
           console.error('Ошибка при записи в базу:', dbError)
         }

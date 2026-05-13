@@ -60,20 +60,22 @@ function Home() {
   // const progressSteps = 282.7 - (282.7 * currentSteps) / maxSteps;
   const [weather, setWeather] = useState(null); // данные погоды, null пока не загрузилась
   const [userCity, setUserCity] = useState("");
-  const recomendation =
-    weather?.main.temp >= 0
-      ? "Хорошая погода для прогулки ⛅️"
-      : "Сейчас прохладно ☁️";
+  const recommendation =
+    weather?.main == null
+      ? "Погода загружается..."
+      : weather.main.temp >= 0
+        ? "Хорошая погода для прогулки ⛅️"
+        : "Сейчас прохладно ☁️";
   const [habits, setHabits] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAddHabit = (newHabit) => {
-    setHabits([newHabit, ...habits]);
+    setHabits((prev) => [newHabit, ...prev]);
   };
 
   useEffect(() => {
     const fetchWeather = async (city) => {
       try {
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=ru`;
+        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${encodeURIComponent(apiKey)}&units=metric&lang=ru`;
         const res = await fetch(url);
         if (!res.ok) throw new Error("Город не найден");
         const data = await res.json();

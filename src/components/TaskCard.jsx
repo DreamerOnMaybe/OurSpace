@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import "./TaskCard.css";
-import TaskDetailModal from "./TaskDetaildModal";
+import TaskDetailModal from "./TaskDetailModal";
 
 function TaskCard({ task, onToggle, onDelete, onMove, onUpdateTime }) {
   const pressTimer = useRef(null)
