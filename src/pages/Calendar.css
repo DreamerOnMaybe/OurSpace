@@ -1,0 +1,112 @@
+.week-strip {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    overflow-x: auto;
+    gap: 4px;
+    scrollbar-width: none;
+}
+
+.week-strip::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+
+.week-strip button {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.day-btn {
+    font-size: 18px;
+    padding: 12px;
+    background: none;
+    border: none;
+    border-radius: 15px;
+    min-width: 40px;
+    flex-shrink: 0;
+    color: var(--current-text);
+}
+
+.active {
+    background: var(--colors-brand-primary-100);
+    color: #fff;
+}
+
+.tabs {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.tabs button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.day-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--colors-brand-secondary-100);
+    border-radius: 36px;
+    text-align: center;
+}
+
+.month-calendar {
+    margin-top: 15px;
+    border: 2px solid var(--colors-brand-primary-100);
+    padding: 10px;
+    border-radius: 36px;
+}
+
+.month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.month-header {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    background: var(--colors-brand-secondary-100);
+    padding: 10px;
+    font-size: 18px;
+    border-radius: 36px;
+}
+
+.toggle-month {
+    font-size: 18px;
+    background: none;
+    border: none;
+    padding: 5px;
+}
+
+.day-on-calendar {
+    padding: 5px;
+    border: 2px solid var(--colors-brand-primary-100);
+    border-radius: 36px;
+}
+
+.has-tasks {
+    border: 2px solid var(--colors-brand-secondary-100);
+}
+
+.note-textarea {
+    margin-top: 15px;
+    width: 100%;
+    height: 60vh;
+    outline: none;
+    font-size: 18px;
+    border: 2px solid var(--colors-brand-primary-100);
+    border-radius: 6px;
+    padding: 10px;
+}

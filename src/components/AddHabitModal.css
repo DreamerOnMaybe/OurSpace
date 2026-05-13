@@ -1,0 +1,271 @@
+input {
+  height: 40px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  align-items: center;
+  background: var(--surface-surface-primary-100);
+  margin: 20px;
+  padding: 20px;
+  width: 100%;
+  border-radius: 30px;
+}
+
+.modal h3 {
+  font-size: 24px;
+  color: var(--text-text-neutral-0);
+  text-align: center;
+}
+
+.habit-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.habit-option {
+  color: var(--text-text-neutral-0);
+  padding: 5px;
+  border-radius: 30px;
+  font-size: 18px;
+  outline: none;
+  border: 2px solid var(--surface-surface-primary-100);
+  background: var(--surface-surface-primary-120);
+  transition: all 0.2s ease;
+}
+
+.habit-option.active {
+  border: 2px solid var(--surface-surface-secondary-100);
+  transition: all 0.2s ease;
+}
+
+.modal-footer input,
+.modal input {
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 16px;
+  outline: none;
+  border: none;
+  width: 100%;
+  background: var(--surface-surface-neutral-2);
+}
+
+.add-modal-btns {
+  justify-content: space-around;
+  margin-top: auto;
+  display: flex;
+  gap: 15px;
+}
+
+.add-modal-btns .close {
+  background: var(--surface-surface-secondary-100);
+}
+
+.add-modal-btns button {
+  background: var(--colors-success);
+  border: none;
+  padding: 5px 10px;
+  border-radius: 30px;
+  color: var(--text-text-neutral-0);
+  font-size: 16px;
+  width: 100px;
+}
+
+.add-more {
+  border: none;
+  background: var(--colors-brand-primary-120);
+  color: var(--colors-neutrals-0);
+  padding: 7px;
+  border-radius: 36px;
+}
+
+.task-move {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.task-move button {
+  background: var(--colors-brand-primary-120);
+  border: none;
+  color: var(--colors-neutrals-0);
+  padding: 4px 7px;
+  border-radius: 16px;
+}
+
+.delete {
+  background: var(--colors-brand-secondary-100);
+  border: none;
+  color: var(--colors-neutrals-0);
+  padding: 4px 7px;
+  border-radius: 16px;
+  font-size: 16px;
+}
+
+.bottom-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.time-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.time-selection label {
+  color: var(--colors-neutrals-0);
+}
+
+.set-time {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.time-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.time-actions button {
+  background: var(--colors-brand-primary-120);
+  color: var(--colors-neutrals-0);
+  padding: 5px;
+  border-radius: 16px;
+}
+
+.custom-time-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--current-bg);
+  padding: 5px;
+  border-radius: 16px;
+  margin-bottom: 15px;
+}
+
+.custom-time-picker select {
+  padding: 5px 10px;
+  font-size: 18px;
+  font-weight: bold;
+  border: 2px solid var(--colors-neutrals-8);
+  border-radius: 12px;
+  background: var(--current-bg);
+  color: var(--current-text);
+  cursor: pointer;
+  appearance: none; /* Убираем дефолтную стрелочку браузера */
+  text-align: center;
+}
+
+.separator {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--current-text);
+}
+
+label {
+  color: var(--colors-neutrals-0);
+}
+
+/* Стили для кнопок действий */
+.time-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.animated-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px); /* Блок чуть-чуть «подплывает» снизу */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.time-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 0 5px;
+  color: var(--colors-neutrals-0);
+}
+
+/* Основа переключателя */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
+
+/* Скрываем дефолтный чекбокс */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* Фон ползунка */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+}
+
+/* Когда включено */
+input:checked + .slider {
+  background-color: #4caf50; /* Твой зеленый цвет */
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+/* Закругляем */
+.slider.round {
+  border-radius: 34px;
+}
+.slider.round:before {
+  border-radius: 50%;
+}
