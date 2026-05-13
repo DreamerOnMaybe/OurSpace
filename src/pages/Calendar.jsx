@@ -153,16 +153,6 @@ function Calendar() {
 
   }, [tasks, notes, userId, dataLoaded])
 
-  useEffect(() => {
-    if (!userId || !dataLoaded) return
-
-    const saveNotes = async () => {
-      await setDoc(doc(db, 'users', userId), { notes }, { merge: true })
-    }
-
-    saveNotes()
-  }, [notes, userId, dataLoaded])
-
   const handleAddNote = (newNote) => {
     const dataKey = formatDate(selectedDay)
     setNotes({

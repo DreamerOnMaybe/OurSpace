@@ -72,7 +72,14 @@ function App() {
             <Notes />
           </ProtectedRoute>
         } />
-        <Route path="/settings" element={<Settings />} />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute user={user} loading={loading}>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   )
