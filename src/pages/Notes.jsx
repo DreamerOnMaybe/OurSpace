@@ -39,7 +39,7 @@ function Notes() {
   }, [userId]);
 
   const sortedNotes = Object.entries(notes)
-    .filter(([, text]) => text.trim() !== "")
+    .filter(([, text]) => typeof text === 'string' && text.trim() !== "")
     .sort((a, b) => {
       const fullDateA = a[0].split("_")[0];
       const fullDateB = b[0].split("_")[0];
