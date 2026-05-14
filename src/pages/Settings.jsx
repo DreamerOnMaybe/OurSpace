@@ -22,7 +22,10 @@ function Settings() {
   // загружаем текущие данные при входе
   useEffect(() => {
     const loadUserData = async () => {
-      if (!auth.currentUser) return;
+      if (!auth.currentUser) {
+        setLoading(false)
+        return
+      };
 
       const docSnap = await getDoc(doc(db, "users", auth.currentUser.uid));
       if (docSnap.exists()) {
