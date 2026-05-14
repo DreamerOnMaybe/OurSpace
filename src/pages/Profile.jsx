@@ -84,7 +84,7 @@ function Profile() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       // слушаем firebase auth - когда пользователь загрузился, сохраняем его uid- уникальный идентификатор пользователя
-      if (currentUser) setUserId(currentUser.uid);
+      setUserId(currentUser ? currentUser.uid : null);
     });
     return () => unsubscribe(); // отписываемся когда компонент удаляется
   }, []);

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { db, auth } from "../firebase.js";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import Header from "../components/Header.jsx";
 import NoteDetailModal from "../components/NoteDetailModal.jsx";
 import "./Notes.css";
@@ -22,7 +22,7 @@ function Notes() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) setUserId(currentUser.uid);
+      setUserId(currentUser ? currentUser.uid : null);
     });
     return () => unsubscribe();
   }, []);
@@ -63,9 +63,7 @@ function Notes() {
 
     if (userId) {
       const userRef = doc(db, "users", userId);
-      await updateDoc(userRef, {
-        notes: updatedNotes,
-      });
+      await setDoc(userRef, { notes: updatedNotes }, { merge: true })
     }
   };
 
@@ -85,9 +83,7 @@ function Notes() {
 
     if (userId) {
       const userRef = doc(db, "users", userId);
-      await updateDoc(userRef, {
-        notes: updatedNotes,
-      });
+      await setDoc(userRef, { notes: updatedNotes }, { merge: true })
     }
   };
 

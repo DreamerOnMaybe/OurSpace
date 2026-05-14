@@ -47,7 +47,7 @@ function Home() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) setUserId(currentUser.uid);
+      setUserId(currentUser ? currentUser.uid : null);
     });
     return () => unsubscribe();
   }, []);
@@ -391,7 +391,7 @@ function Home() {
             <img src={humidity} alt="" />
           </div>
         </div>
-        <p className="weather-recommendation">{recomendation}</p>
+        <p className="weather-recommendation">{recommendation}</p>
       </div>
 
       {habits.length === 0 ? (

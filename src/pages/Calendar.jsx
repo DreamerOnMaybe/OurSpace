@@ -37,7 +37,7 @@ function Calendar() {
   const [userId, setUserId] = useState(null)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) setUserId(currentUser.uid)
+      setUserId(currentUser ? currentUser.uid : null);
     })
     return () => unsubscribe()
   }, [])
