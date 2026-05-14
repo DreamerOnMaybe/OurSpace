@@ -61,8 +61,8 @@ function Auth() {
     try {
       await setPersistence(
         auth,
-        rememberMe ? browserLocalPersistence : browserSessionPersistence
-      )
+        rememberMe ? browserLocalPersistence : browserSessionPersistence,
+      );
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
@@ -72,32 +72,31 @@ function Auth() {
           password,
         );
         const user = userCredential.user;
-
-        try {
-          await updateProfile(user, { displayName: name })
-
-          await setDoc(doc(db, 'users', user.uid), {
+        await updateProfile(user, { displayName: name });
+        await setDoc(
+          doc(db, "users", user.uid),
+          {
             uid: user.uid,
             name: name,
             email: email,
-            city: city || 'Moscow',
-            createdAt: new Date()
-          }, { merge: true })
-          navigate('/')
-        } catch (dbError) {
-          console.error('Ошибка при записи в базу:', dbError)
-        }
+            city: city || "Moscow",
+            createdAt: new Date(),
+          },
+          { merge: true },
+        );
       }
       navigate("/");
     } catch (error) {
-      console.error("Ошибка Firebase Auth:", error.code, error.message);
-      setError(getErrorMessage(error.code));
+      console.error("Ошибка входа / регистрации:", error.code, error.message);
+      setError(
+        error.code
+          ? getErrorMessage(error.code)
+          : "Не удалось сохранить данные. Попробуйте снова.",
+      );
     } finally {
       setLoading(false);
     }
   };
-
-  // функция для сброса пороля
   const handleForgotPassword = async () => {
     if (!email) {
       setError("Введите  Email, чтобы получить ссылку для сброса");
@@ -111,7 +110,6 @@ function Auth() {
       setError("Ошибка при отправке письма. проверьте правильность Email");
     }
   };
-
   return (
     <div className="login-container">
       <div className="tabs-btns">
