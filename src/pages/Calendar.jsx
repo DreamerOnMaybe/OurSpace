@@ -215,7 +215,7 @@ function Calendar() {
     setTasks(newTasksState)
 
     const userRef = doc(db, 'users', userId)
-    await updateDoc(userRef, { tasks: newTasksState })
+    await setDoc(userRef, { tasks: newTasksState }, { merge: true })
   }
 
   return (

@@ -56,7 +56,8 @@ function Home() {
   const liters = (glasses * 0.2).toFixed(2); // переводим стаканы в литры, toFixed(2) - два знака после запятой
   const [maxGlasses, setMaxGlasses] = useState(10);
   const [maxSteps, setMaxSteps] = useState(10000);
-  const progress = 282.7 - (282.7 * glasses) / maxGlasses; // вычисляем strokeDashoffset для SVG круга
+  const safeMaxGlasses = Math.max(1, maxGlasses)
+  const progress = 282.7 - (282.7 * glasses) / safeMaxGlasses; // вычисляем strokeDashoffset для SVG круга
   // const progressSteps = 282.7 - (282.7 * currentSteps) / maxSteps;
   const [weather, setWeather] = useState(null); // данные погоды, null пока не загрузилась
   const [userCity, setUserCity] = useState("");
