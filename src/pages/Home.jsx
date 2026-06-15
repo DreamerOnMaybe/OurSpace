@@ -56,7 +56,7 @@ function Home() {
   const liters = (glasses * 0.2).toFixed(2); // переводим стаканы в литры, toFixed(2) - два знака после запятой
   const [maxGlasses, setMaxGlasses] = useState(10);
   const [maxSteps, setMaxSteps] = useState(10000);
-  const safeMaxGlasses = Math.max(1, maxGlasses)
+  const safeMaxGlasses = Math.max(1, maxGlasses);
   const progress = 282.7 - (282.7 * glasses) / safeMaxGlasses; // вычисляем strokeDashoffset для SVG круга
   // const progressSteps = 282.7 - (282.7 * currentSteps) / maxSteps;
   const [weather, setWeather] = useState(null); // данные погоды, null пока не загрузилась
@@ -73,29 +73,34 @@ function Home() {
     setHabits((prev) => [newHabit, ...prev]);
   };
 
-  useEffect(() => {
-    const fetchWeather = async (city) => {
-      try {
-        const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${encodeURIComponent(apiKey)}&units=metric&lang=ru`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Город не найден");
-        const data = await res.json();
-        setWeather(data);
-        setUserCity(data.name); // ← используем имя города из API, а не из БД (оно точнее!)
-      } catch (err) {
-        console.error("Ошибка погоды:", err);
-        // Можно оставить старый город или показать дефолтный
-        setUserCity(city);
-        setWeather(null);
-      }
-    };
+  const [displayCity, setDisplayCity] = useState("")
 
-    if (userId && userCity) {
-      fetchWeather(userCity);
-    } else if (!userId) {
-      fetchWeather("Omsk"); // гость
+  const fetchWeather = async (city) => {
+    try {
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${encodeURIComponent(apiKey)}&units=metric&lang=ru`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Город не найден");
+      const data = await res.json();
+      setWeather(data);
+      setDisplayCity(data.name)
+    } catch (err) {
+      console.error("Ошибка погоды:", err);
+      setDisplayCity(city)
+      setWeather(null);
     }
-  }, [userId, userCity]);
+  };
+
+  useEffect(() => {
+    if (!userId) {
+      fetchWeather("Omsk");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userCity) {
+      fetchWeather(userCity);
+    }
+  }, [userCity]);
 
   useEffect(() => {
     if (!userId) return;
@@ -374,7 +379,7 @@ function Home() {
 
       <div className="weather-card">
         <div className="weather-header">
-          <span className="city-name">📍 {userCity}</span>
+          <span className="city-name">📍 {displayCity}</span>
         </div>
         <div className="weather-statistic">
           <div className="weather-card-item">

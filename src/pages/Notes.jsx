@@ -63,7 +63,7 @@ function Notes() {
 
     if (userId) {
       const userRef = doc(db, "users", userId);
-      await setDoc(userRef, { notes: updatedNotes }, { merge: true })
+      await updateDoc(userRef, { notes: updatedNotes })
     }
   };
 
