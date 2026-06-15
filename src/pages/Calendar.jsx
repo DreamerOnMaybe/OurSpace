@@ -6,7 +6,7 @@ import AddTaskModal  from "../components/AddTaskModal";
 import TaskList from "../components/TaskList";
 
 import { db, auth } from '../firebase'
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { onAuthStateChanged } from 'firebase/auth'
 
 import Header from "../components/Header.jsx"
@@ -30,6 +30,7 @@ function Calendar() {
     const targetTasks = tasks[targetKey] || []
     setTasks({ 
       ...tasks,
+      [currentKey]: tasks[currentKey].filter(t => t.id !== taskId),
       [targetKey]: [{ ...task, id: Date.now() }, ...targetTasks]
     })
   }
