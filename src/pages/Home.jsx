@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { db } from "../firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc, getDocs, addDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import "../App.css";
 import HabitList from "../components/HabitList";
@@ -69,9 +69,20 @@ function Home() {
         : "Сейчас прохладно ☁️";
   const [habits, setHabits] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleAddHabit = (newHabit) => {
-    setHabits((prev) => [newHabit, ...prev]);
-  };
+  const handleAddHabit = async (newHabitData) => {
+    try {
+      const docRef = await addDoc(collection(db, 'users', userId, 'habits'), {
+        ...newHabitData,
+        minutes: 0,
+        log: {}
+      })
+      setHabits((prev) => [{ id: docRef.id, ...newHabitData, minutes: 0, log: {} }, ...prev])
+
+      setIsModalOpen(false)
+    } catch (error) {
+      console.error('Ошибка при добавлении привычки: ', error)
+    }
+  }
 
   const [displayCity, setDisplayCity] = useState("")
 
@@ -107,8 +118,16 @@ function Home() {
 
     const loadUserData = async () => {
       try {
+        const today = new Date().toISOString().split('T')[0];
         const userDocRef = doc(db, "users", userId);
         const userDocSnap = await getDoc(userDocRef);
+
+        const habitsSnapshot = await getDocs(collection(db, 'users', userId, 'habits'))
+
+        const habitsList = habitsSnapshot.docs.map(habitDoc => ({
+          id: habitDoc.id,
+          ...habitDoc.data()
+        }))
 
         if (userDocSnap.exists()) {
           const data = userDocSnap.data();
@@ -120,23 +139,22 @@ function Home() {
           // 2. Дата и сброс привычек
           const savedDate = data.date;
           const now = new Date();
-          const today = now.toLocaleDateString();
           const yesterday = new Date(now);
           yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = yesterday.toLocaleDateString();
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
 
           if (savedDate !== today) {
             let currentStreak = data.streak || 0;
 
-            const wasYesterdayProductive = (data.habits || []).some(
-              (h) => h.completed || h.minutes > 0,
+            const wasYesterdayProductive = habitsList.some(
+              (h) => h.log && h.log[yesterdayStr] && h.log[yesterdayStr].minutes > 0,
             );
 
             if (savedDate !== yesterdayStr || !wasYesterdayProductive) {
               currentStreak = 0;
             }
 
-            const resetHabits = (data.habits || defaultHabits).map((h) => ({
+            const resetHabits = habitsList.map((h) => ({
               ...h,
               minutes: 0,
               completed: false,
@@ -152,36 +170,33 @@ function Home() {
               { merge: true },
             );
           } else {
-            setHabits(data.habits || defaultHabits);
+            setHabits(habitsList);
             setGlasses(data.glasses || 0);
           }
 
           // 3. Настройки
           setMaxGlasses(data.maxGlasses || 10);
           setMaxSteps(data.maxSteps || 10000);
+          setUserCity(data.city || "Omsk");
         } else {
           // Если пользователя нет — создать профиль по умолчанию
           await setDoc(userDocRef, {
             habits: defaultHabits,
             glasses: 0,
             streak: 0,
-            date: new Date().toLocaleDateString(),
+            date: new Date().toISOString().split('T')[0],
             maxGlasses: 10,
             maxSteps: 10000,
             city: "Omsk",
           });
           setUserCity("Omsk");
-          setHabits(defaultHabits);
+          setHabits([]);
           setGlasses(0);
         }
 
         setDataLoaded(true);
       } catch (err) {
         console.error("Ошибка при загрузке данных:", err);
-        // Фолбэк
-        setUserCity("Omsk");
-        setHabits(defaultHabits);
-        setGlasses(0);
         setDataLoaded(true);
       }
     };
@@ -192,7 +207,7 @@ function Home() {
     if (!userId || !dataLoaded) return;
 
     const saveData = async () => {
-      const today = new Date().toLocaleDateString();
+      const today = new Date().toISOString().split('T')[0];
       await setDoc(
         doc(db, "users", userId),
         {
@@ -225,7 +240,7 @@ function Home() {
   };
 
   const handleUpdateMinutes = async (id, amount) => {
-    const today = new Date().toLocaleDateString();
+    const today = new Date().toISOString().split('T')[0];
 
     // Проверяем ДО обновления
     const isFirstActivityToday =
@@ -263,7 +278,7 @@ function Home() {
     if (!userId || !dataLoaded) return;
 
     const timer = setTimeout(async () => {
-      const today = new Date().toLocaleDateString();
+      const today = new Date().toISOString().split('T')[0];
       await setDoc(
         doc(db, "users", userId),
         { habits, glasses, date: today, maxGlasses, maxSteps },
