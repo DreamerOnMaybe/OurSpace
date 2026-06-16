@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../firebase";
 import { db } from "../firebase";
-import { collection, doc, getDoc, setDoc, getDocs, addDoc } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  getDocs,
+  addDoc,
+} from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import "../App.css";
 import HabitList from "../components/HabitList";
@@ -61,6 +68,7 @@ function Home() {
   // const progressSteps = 282.7 - (282.7 * currentSteps) / maxSteps;
   const [weather, setWeather] = useState(null); // данные погоды, null пока не загрузилась
   const [userCity, setUserCity] = useState("");
+  const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const recommendation =
     weather?.main == null
       ? "Погода загружается..."
@@ -71,33 +79,39 @@ function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAddHabit = async (newHabitData) => {
     try {
-      const docRef = await addDoc(collection(db, 'users', userId, 'habits'), {
+      const docRef = await addDoc(collection(db, "users", userId, "habits"), {
         ...newHabitData,
         minutes: 0,
-        log: {}
-      })
-      setHabits((prev) => [{ id: docRef.id, ...newHabitData, minutes: 0, log: {} }, ...prev])
+        log: {},
+      });
+      setHabits((prev) => [
+        { id: docRef.id, ...newHabitData, minutes: 0, log: {} },
+        ...prev,
+      ]);
 
-      setIsModalOpen(false)
+      setIsModalOpen(false);
     } catch (error) {
-      console.error('Ошибка при добавлении привычки: ', error)
+      console.error("Ошибка при добавлении привычки: ", error);
     }
-  }
+  };
 
-  const [displayCity, setDisplayCity] = useState("")
+  const [displayCity, setDisplayCity] = useState("");
 
   const fetchWeather = async (city) => {
+    setIsLoadingWeather(true)
     try {
       const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${encodeURIComponent(apiKey)}&units=metric&lang=ru`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Город не найден");
       const data = await res.json();
       setWeather(data);
-      setDisplayCity(data.name)
+      setDisplayCity(data.name);
+      setIsLoadingWeather(false)
     } catch (err) {
       console.error("Ошибка погоды:", err);
-      setDisplayCity(city)
+      setDisplayCity(city);
       setWeather(null);
+      setIsLoadingWeather(false)
     }
   };
 
@@ -118,16 +132,18 @@ function Home() {
 
     const loadUserData = async () => {
       try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split("T")[0];
         const userDocRef = doc(db, "users", userId);
         const userDocSnap = await getDoc(userDocRef);
 
-        const habitsSnapshot = await getDocs(collection(db, 'users', userId, 'habits'))
+        const habitsSnapshot = await getDocs(
+          collection(db, "users", userId, "habits"),
+        );
 
-        const habitsList = habitsSnapshot.docs.map(habitDoc => ({
+        const habitsList = habitsSnapshot.docs.map((habitDoc) => ({
           id: habitDoc.id,
-          ...habitDoc.data()
-        }))
+          ...habitDoc.data(),
+        }));
 
         if (userDocSnap.exists()) {
           const data = userDocSnap.data();
@@ -141,13 +157,14 @@ function Home() {
           const now = new Date();
           const yesterday = new Date(now);
           yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = yesterday.toISOString().split('T')[0];
+          const yesterdayStr = yesterday.toISOString().split("T")[0];
 
           if (savedDate !== today) {
             let currentStreak = data.streak || 0;
 
             const wasYesterdayProductive = habitsList.some(
-              (h) => h.log && h.log[yesterdayStr] && h.log[yesterdayStr].minutes > 0,
+              (h) =>
+                h.log && h.log[yesterdayStr] && h.log[yesterdayStr].minutes > 0,
             );
 
             if (savedDate !== yesterdayStr || !wasYesterdayProductive) {
@@ -184,7 +201,7 @@ function Home() {
             habits: defaultHabits,
             glasses: 0,
             streak: 0,
-            date: new Date().toISOString().split('T')[0],
+            date: new Date().toISOString().split("T")[0],
             maxGlasses: 10,
             maxSteps: 10000,
             city: "Omsk",
@@ -207,7 +224,7 @@ function Home() {
     if (!userId || !dataLoaded) return;
 
     const saveData = async () => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       await setDoc(
         doc(db, "users", userId),
         {
@@ -240,7 +257,7 @@ function Home() {
   };
 
   const handleUpdateMinutes = async (id, amount) => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
 
     // Проверяем ДО обновления
     const isFirstActivityToday =
@@ -278,7 +295,7 @@ function Home() {
     if (!userId || !dataLoaded) return;
 
     const timer = setTimeout(async () => {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       await setDoc(
         doc(db, "users", userId),
         { habits, glasses, date: today, maxGlasses, maxSteps },
@@ -396,23 +413,30 @@ function Home() {
         <div className="weather-header">
           <span className="city-name">📍 {displayCity}</span>
         </div>
-        <div className="weather-statistic">
-          <div className="weather-card-item">
-            <p className="temp card-text">
-              {weather ? Math.round(weather.main.temp) : "--"}°
-            </p>
-            <img src={sunny} alt="" />
+        {isLoadingWeather ? (
+          <p>Загружаем погоду...</p>
+        ) : weather === null ? (
+          <p>Не удалось загрузить погоду</p>
+        ) : (
+          <div className="weather-statistic">
+            <div className="weather-card-item">
+              <p className="temp card-text">
+                {Math.round(weather.main.temp)}°
+              </p>
+              <img src={sunny} alt="" />
+            </div>
+            <div className="weather-card-item">
+              <p className="wind">{weather?.wind.speed} m/s</p>
+              <img src={wind} alt="" />
+            </div>
+            <div className="weather-card-item">
+              <p className="humidity">{weather?.main.humidity} %</p>
+              <img src={humidity} alt="" />
+            </div>
+            <p className="weather-recommendation">{recommendation}</p>
           </div>
-          <div className="weather-card-item">
-            <p className="wind">{weather?.wind.speed} m/s</p>
-            <img src={wind} alt="" />
-          </div>
-          <div className="weather-card-item">
-            <p className="humidity">{weather?.main.humidity} %</p>
-            <img src={humidity} alt="" />
-          </div>
-        </div>
-        <p className="weather-recommendation">{recommendation}</p>
+        )}
+        
       </div>
 
       {habits.length === 0 ? (

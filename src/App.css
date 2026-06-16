@@ -233,7 +233,12 @@ button {
 .weather-statistic {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
+}
+
+.weather-recommendation {
+  margin-top: 20px;
 }
 
 .weather-card-item {
