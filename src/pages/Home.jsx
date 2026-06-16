@@ -8,6 +8,7 @@ import {
   setDoc,
   getDocs,
   addDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import "../App.css";
@@ -79,6 +80,7 @@ function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAddHabit = async (newHabitData) => {
     try {
+
       const docRef = await addDoc(collection(db, "users", userId, "habits"), {
         ...newHabitData,
         minutes: 0,
@@ -98,7 +100,7 @@ function Home() {
   const [displayCity, setDisplayCity] = useState("");
 
   const fetchWeather = async (city) => {
-    setIsLoadingWeather(true)
+    setIsLoadingWeather(true);
     try {
       const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${encodeURIComponent(apiKey)}&units=metric&lang=ru`;
       const res = await fetch(url);
@@ -106,12 +108,12 @@ function Home() {
       const data = await res.json();
       setWeather(data);
       setDisplayCity(data.name);
-      setIsLoadingWeather(false)
+      setIsLoadingWeather(false);
     } catch (err) {
       console.error("Ошибка погоды:", err);
       setDisplayCity(city);
       setWeather(null);
-      setIsLoadingWeather(false)
+      setIsLoadingWeather(false);
     }
   };
 
@@ -140,13 +142,33 @@ function Home() {
           collection(db, "users", userId, "habits"),
         );
 
-        const habitsList = habitsSnapshot.docs.map((habitDoc) => ({
-          id: habitDoc.id,
-          ...habitDoc.data(),
-        }));
+        let habitsList = habitsSnapshot.docs.map((habitDoc) => {
+          const data = habitDoc.data();
+          const { id: _, ...restOfData } = data;
+          return {
+            id: habitDoc.id,
+            ...restOfData,
+          };
+        });
 
         if (userDocSnap.exists()) {
           const data = userDocSnap.data();
+
+          if (
+            habitsList.length === 0 &&
+            data.habits &&
+            data.habits.length > 0
+          ) {
+            for (const habit of data.habits) {
+              const { id: _, ...habitData } = habit;
+              const docRef = await addDoc(
+                collection(db, "users", userId, "habits"),
+                habitData,
+              );
+              habitsList.push({ id: docRef.id, ...habitData });
+            }
+            await setDoc(userDocRef, { habits: [] }, { merge: true });
+          }
 
           // 1. Город
           const cityFromDb = data.city || "Moscow";
@@ -198,16 +220,30 @@ function Home() {
         } else {
           // Если пользователя нет — создать профиль по умолчанию
           await setDoc(userDocRef, {
-            habits: defaultHabits,
             glasses: 0,
             streak: 0,
-            date: new Date().toISOString().split("T")[0],
+            date: today,
             maxGlasses: 10,
             maxSteps: 10000,
             city: "Omsk",
           });
+
+          for (const habit of defaultHabits) {
+            const { id: _, ...habitData } = habit;
+            await addDoc(collection(db, "users", userId, "habits"), habitData);
+          }
+
+          const newSnapshot = await getDocs(
+            collection(db, "users", userId, "habits"),
+          );
+          habitsList = newSnapshot.docs.map((habitDoc) => {
+            const data = habitDoc.data();
+            const { id: _, ...restOfData } = data;
+            return { id: habitDoc.id, ...restOfData };
+          });
+
           setUserCity("Omsk");
-          setHabits([]);
+          setHabits(habitsList);
           setGlasses(0);
         }
 
@@ -228,7 +264,6 @@ function Home() {
       await setDoc(
         doc(db, "users", userId),
         {
-          habits,
           glasses,
           date: today,
           maxGlasses,
@@ -238,7 +273,7 @@ function Home() {
       );
     };
     saveData();
-  }, [habits, glasses, userId, dataLoaded]);
+  }, [glasses, userId, dataLoaded]);
 
   const handleToggleHabit = (id) => {
     setHabits(
@@ -257,24 +292,44 @@ function Home() {
   };
 
   const handleUpdateMinutes = async (id, amount) => {
+    if (!userId) return;
     const today = new Date().toISOString().split("T")[0];
+
+    const currentHabit = habits.find((h) => h.id === id);
+    if (!currentHabit) return;
+
+    const newMinutes = Math.max(0, currentHabit.minutes + amount);
+
+    const newLog = {
+      ...currentHabit.log,
+      [today]: {
+        minutes: newMinutes,
+        completed: newMinutes > 0,
+      },
+    };
+
+    try {
+      const habitRef = doc(db, "users", userId, "habits", String(id));
+      await updateDoc(habitRef, {
+        minutes: newMinutes,
+        log: newLog,
+      });
+    } catch (error) {
+      console.error("Ошибка при обновлении привычки:", error);
+    }
+
+    const updateHabits = habits.map((habit) => {
+      if (habit.id !== id) return habit;
+      return {
+        ...habit,
+        minutes: newMinutes,
+        log: newLog,
+      };
+    });
 
     // Проверяем ДО обновления
     const isFirstActivityToday =
       habits.every((h) => !h.completed && h.minutes === 0) && glasses === 0;
-
-    const updateHabits = habits.map((habit) => {
-      if (habit.id !== id) return habit;
-      const newMinutes = Math.max(0, habit.minutes + amount);
-      return {
-        ...habit,
-        minutes: newMinutes,
-        log: {
-          ...habit.log,
-          [today]: { minutes: newMinutes, completed: newMinutes > 0 },
-        },
-      };
-    });
 
     setHabits(updateHabits);
 
@@ -290,21 +345,6 @@ function Home() {
     setMaxGlasses(newGlasses);
     setMaxSteps(newSteps);
   };
-
-  useEffect(() => {
-    if (!userId || !dataLoaded) return;
-
-    const timer = setTimeout(async () => {
-      const today = new Date().toISOString().split("T")[0];
-      await setDoc(
-        doc(db, "users", userId),
-        { habits, glasses, date: today, maxGlasses, maxSteps },
-        { merge: true },
-      );
-    }, 1000); // Сохраняем не чаще раза в секунду
-
-    return () => clearTimeout(timer);
-  }, [habits, glasses, maxGlasses, maxSteps, userId, dataLoaded]);
 
   return (
     <div className="app-container">
@@ -420,9 +460,7 @@ function Home() {
         ) : (
           <div className="weather-statistic">
             <div className="weather-card-item">
-              <p className="temp card-text">
-                {Math.round(weather.main.temp)}°
-              </p>
+              <p className="temp card-text">{Math.round(weather.main.temp)}°</p>
               <img src={sunny} alt="" />
             </div>
             <div className="weather-card-item">
@@ -436,7 +474,6 @@ function Home() {
             <p className="weather-recommendation">{recommendation}</p>
           </div>
         )}
-        
       </div>
 
       {habits.length === 0 ? (
