@@ -228,11 +228,12 @@ button {
   border-radius: 16px;
   color: #fff;
   margin-top: 15px;
+  justify-content: center;
 }
 
 .weather-statistic {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -243,7 +244,7 @@ button {
 
 .weather-card-item {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   align-items: center;
 }
 

@@ -9,6 +9,7 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import "../App.css";
@@ -80,7 +81,6 @@ function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAddHabit = async (newHabitData) => {
     try {
-
       const docRef = await addDoc(collection(db, "users", userId, "habits"), {
         ...newHabitData,
         minutes: 0,
@@ -168,6 +168,22 @@ function Home() {
               habitsList.push({ id: docRef.id, ...habitData });
             }
             await setDoc(userDocRef, { habits: [] }, { merge: true });
+          } else if (habitsList.length === 0) {
+            for (const habit of defaultHabits) {
+              const { id: _, ...habitData } = habit;
+              await addDoc(
+                collection(db, "users", userId, "habits"),
+                habitData,
+              );
+            }
+            const newSnapshot = await getDocs(
+              collection(db, "users", userId, "habits"),
+            );
+            habitsList = newSnapshot.docs.map((habitDoc) => {
+              const data = habitDoc.data();
+              const { id: _, ...restOfData } = data;
+              return { id: habitDoc.id, ...restOfData };
+            });
           }
 
           // 1. Город
@@ -286,9 +302,16 @@ function Home() {
     );
   };
 
-  const handleDeleteHabit = (id) => {
-    const updatedHabits = habits.filter((habit) => habit.id !== id);
-    setHabits(updatedHabits);
+  const handleDeleteHabit = async (id) => {
+    try {
+      const habitRef = doc(db, "users", userId, "habits", String(id));
+      await deleteDoc(habitRef);
+      const updatedHabits = habits.filter((habit) => habit.id !== id);
+      setHabits(updatedHabits);
+    } catch (error) {
+      console.error("Ошибка при удалении: ", error);
+      return;
+    }
   };
 
   const handleUpdateMinutes = async (id, amount) => {
