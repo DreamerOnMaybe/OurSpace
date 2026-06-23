@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { db } from "../firebase.js";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, getDocs, collection } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase"; // Импорт конфига Firebase
 import { signOut } from "firebase/auth"; // Импорт функции выхода
@@ -9,9 +9,9 @@ import "./Profile.css";
 import Header from "../components/Header.jsx";
 import Navbar from "../components/Navbar.jsx";
 
-import habitsIcon from '../assets/habits-stat.svg'
-import tasksIcon from '../assets/tasks-stat.svg'
-import streakIcon from '../assets/streak-stat.svg'
+import habitsIcon from "../assets/habits-stat.svg";
+import tasksIcon from "../assets/tasks-stat.svg";
+import streakIcon from "../assets/streak-stat.svg";
 import logOut from "../assets/log-out.svg";
 
 import AvatarModal from "../components/AvatarModal.jsx";
@@ -20,8 +20,8 @@ import defaultAvatar from "../assets/account.png";
 import { useNavigate } from "react-router-dom";
 
 function Profile() {
-  const navigate = useNavigate()
-  const [avatar, setAvatar] = useState(null)
+  const navigate = useNavigate();
+  const [avatar, setAvatar] = useState(null);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
 
   const handleSelectAvatar = async (avatarSrc) => {
@@ -58,15 +58,17 @@ function Profile() {
     const day = date.getDate().toString().padStart(2, "0");
     const month = (date.getMonth() + 1).toString().padStart(2, "0");
     const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
+    return `${year}-${month}-${day}`;
   };
 
   const isDayCompleted = (date) => {
     const dateKey = formatDay(date);
-    if (!habits || habits.length === 0) return false
+    if (!habits || habits.length === 0) return false;
 
     return habits.some((habit) => {
-      return habit.log && habit.log[dateKey] && habit.log[dateKey].completed === true
+      return (
+        habit.log && habit.log[dateKey] && habit.log[dateKey].completed === true
+      );
     }); // проверяем, есть ли в логах привычки, которые были выполнены в этот день
   };
 
@@ -93,35 +95,49 @@ function Profile() {
     // загружаем данные профиля из Firestore когда узнали userId, зависимость userId запускается только когда он изменился
     if (!userId) return; // ждем пока не узнаем пользователя
     const loadProfile = async () => {
-      const docSnap = await getDoc(doc(db, "users", userId));
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setAvatar(data.avatar || null)
-        setUserData({
-          name: data.name || "", // если нет имени - пустая строка
-          bio: data.bio || "",
-        });
-        const habits = data.habits || []; // берем привычки, если нет - пустой массив
-        const tasks = data.tasks || {}; // берем задачи, если нет - пустой объект
+      try {
+        const docSnap = await getDoc(doc(db, "users", userId));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setAvatar(data.avatar || defaultAvatar);
+          setUserData({
+            name: data.name || "", // если нет имени - пустая строка
+            bio: data.bio || "",
+          });
+          const habitsSnapshot = await getDocs(
+            collection(db, "users", userId, "habits"),
+          );
+          const habitsList = habitsSnapshot.docs.map((habitDoc) => {
+            const data = habitDoc.data();
+            const { id: _, ...restOfData } = data;
+            return { id: habitDoc.id, ...restOfData };
+          });
 
-        const totalHabitsCompleted = habits.reduce((acc, habit) => {
-          const completedCount = habit.log 
-            ? Object.values(habit.log).filter(logEntry => logEntry.completed).length 
-            : 0
-          return acc + completedCount
-        }, 0)
+          const tasks = data.tasks || {}; // берем задачи, если нет - пустой объект
 
-        const tasksCompleted = Object.values(tasks)
-          .flat()
-          .filter((t) => t.completed).length;
+          const totalHabitsCompleted = habitsList.reduce((acc, habit) => {
+            const completedCount = habit.log
+              ? Object.values(habit.log).filter(
+                  (logEntry) => logEntry.completed,
+                ).length
+              : 0;
+            return acc + completedCount;
+          }, 0);
 
-        setStats({ 
-          habitsCompleted: totalHabitsCompleted, 
-          tasksCompleted: tasksCompleted, 
-          streak: data.streak || 0
-        })
+          const tasksCompleted = Object.values(tasks)
+            .flat()
+            .filter((t) => t.completed).length;
 
-        setHabits(habits);
+          setStats({
+            habitsCompleted: totalHabitsCompleted,
+            tasksCompleted: tasksCompleted,
+            streak: data.streak || 0,
+          });
+
+          setHabits(habitsList);
+        }
+      } catch (error) {
+        console.error("Ошибка: ", error);
       }
     };
     loadProfile();
@@ -137,7 +153,7 @@ function Profile() {
         title={"Профиль"}
         onRightClick={handleSignOut}
         rightIcon={logOut}
-        onLeftClick={() => navigate('/settings')}
+        onLeftClick={() => navigate("/settings")}
       />
 
       <div className="profile-card">
@@ -145,14 +161,12 @@ function Profile() {
           className="profile-avatar"
           onClick={() => setIsAvatarModalOpen(true)}
         >
-          <img src={avatar && avatar !== '' ? avatar : defaultAvatar} alt="" />
+          <img src={avatar} alt="" />
           <div className="avatar-edit">📷</div>
         </div>
         <div className="profile-info">
           <h2 className="profile-name">{userData.name || "Без имени"}</h2>
-          <p className="profile-desc">
-            {userData.bio || "Добавьте описание"}
-          </p>
+          <p className="profile-desc">{userData.bio || "Добавьте описание"}</p>
         </div>
       </div>
 
