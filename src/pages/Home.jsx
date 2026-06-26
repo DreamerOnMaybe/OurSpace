@@ -81,13 +81,15 @@ function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleAddHabit = async (newHabitData) => {
     try {
+      const { id: _, ...habitData } = newHabitData;
+
       const docRef = await addDoc(collection(db, "users", userId, "habits"), {
-        ...newHabitData,
+        ...habitData,
         minutes: 0,
         log: {},
       });
       setHabits((prev) => [
-        { id: docRef.id, ...newHabitData, minutes: 0, log: {} },
+        { id: docRef.id, ...habitData, minutes: 0, log: {} },
         ...prev,
       ]);
 
@@ -218,6 +220,14 @@ function Home() {
             setHabits(resetHabits);
             setGlasses(0);
 
+            for (const habit of resetHabits) {
+              const habitRef = doc(db, 'users', userId, 'habits', habit.id)
+              await updateDoc(habitRef, {
+                minutes: 0,
+                completed: false
+              })
+            }
+
             // Обновляем стрик и дату
             await setDoc(
               userDocRef,
@@ -272,6 +282,7 @@ function Home() {
 
     loadUserData();
   }, [userId]);
+
   useEffect(() => {
     if (!userId || !dataLoaded) return;
 
@@ -289,7 +300,7 @@ function Home() {
       );
     };
     saveData();
-  }, [glasses, userId, dataLoaded]);
+  }, [glasses, userId, dataLoaded, maxGlasses, maxSteps]);
 
   const handleToggleHabit = (id) => {
     setHabits(
@@ -364,6 +375,7 @@ function Home() {
       await setDoc(userRef, { streak: currentStreak + 1 }, { merge: true });
     }
   };
+
   const handleSaveSettings = (newGlasses, newSteps) => {
     setMaxGlasses(newGlasses);
     setMaxSteps(newSteps);
