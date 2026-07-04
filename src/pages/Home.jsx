@@ -27,8 +27,6 @@ import humidity from "../assets/humidity.svg";
 import moonIcon from "../assets/moon.svg";
 import sunIcon from "../assets/sun.svg";
 
-const apiKey = import.meta.env.VITE_API_KEY;
-
 const defaultHabits = [
   { id: 1, name: "Прогулка", icon: "🚶", minutes: 0, log: {} },
   { id: 2, name: "Пробежка", icon: "🏃", minutes: 0, log: {} },
@@ -102,19 +100,75 @@ function Home() {
   const [displayCity, setDisplayCity] = useState("");
 
   const fetchWeather = async (city) => {
+    // 1. Проверяем кэш
+    const CACHE_KEY = `weather_cache_${city}`;
+    const cached = localStorage.getItem(CACHE_KEY);
+
+    if (cached) {
+      const { data, timestamp } = JSON.parse(cached);
+      const now = Date.now();
+      const thirtyMinutes = 30 * 60 * 1000;
+
+      // Если кэш свежий (меньше 30 минут) — используем его
+      if (now - timestamp < thirtyMinutes) {
+        console.log("Погода загружена из кэша");
+        setWeather(data);
+        setDisplayCity(data.name);
+        setIsLoadingWeather(false);
+        return;
+      }
+    }
+
+    // 2. Если кэша нет или он старый — делаем запрос
     setIsLoadingWeather(true);
+
     try {
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${encodeURIComponent(apiKey)}&units=metric&lang=ru`;
+      const apiKey = import.meta.env.VITE_API_KEY;
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric&lang=ru`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error("Город не найден");
-      const data = await res.json();
-      setWeather(data);
-      setDisplayCity(data.name);
+
+      if (!res.ok) throw new Error("Город не найден или API недоступен");
+
+      const rawData = await res.json();
+
+      // 3. Форматируем под наш UI
+      const formattedWeather = {
+        main: {
+          temp: rawData.main.temp,
+          humidity: rawData.main.humidity,
+        },
+        wind: {
+          speed: rawData.wind.speed,
+        },
+        name: rawData.name,
+      };
+
+      // 4. Сохраняем в кэш
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({
+          data: formattedWeather,
+          timestamp: Date.now(),
+        })
+      );
+
+      setWeather(formattedWeather);
+      setDisplayCity(rawData.name);
       setIsLoadingWeather(false);
     } catch (err) {
       console.error("Ошибка погоды:", err);
-      setDisplayCity(city);
-      setWeather(null);
+
+      // Если запрос не удался, но есть кэш — показываем его (даже старый)
+      if (cached) {
+        console.log("API недоступен, показываем кэш");
+        const { data } = JSON.parse(cached);
+        setWeather(data);
+        setDisplayCity(data.name);
+      } else {
+        setDisplayCity(city);
+        setWeather(null);
+      }
+
       setIsLoadingWeather(false);
     }
   };
