@@ -120,23 +120,60 @@ function Calendar() {
     if (!userId) return //Ждём пока узнаем пользователя
 
     const loadData = async () => {
-      const docRef = doc(db, 'users', userId)
-      const docSnap = await getDoc(docRef)
-  
-      if (docSnap.exists()) {
-        const data = docSnap.data()
-        setTasks(docSnap.data().tasks || {})
-        setNotes(docSnap.data().notes || {})
-      } else {
-        setTasks({})
-        setNotes({})
+      const CACHE_KEY = `calendar_cache_${userId}`
+
+      const cached = localStorage.getItem(CACHE_KEY)
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached)
+          setTasks(parsed.tasks || {})
+          setNotes(parsed.notes || {})
+          setDataLoaded(true)
+        } catch (err) {
+          console.log('Ошибка парсинга кэша: ', err)
+        }
       }
-      setDataLoaded(true)
+
+      try {
+        const docRef = doc(db, 'users', userId)
+        const docSnap = await getDoc(docRef)
+
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          const freshTasks = data.tasks || {}
+          const freshNotes = data.notes || {}
+
+          setTasks(freshTasks)
+          setNotes(freshNotes)
+
+          localStorage.setItem(CACHE_KEY, JSON.stringify({
+            tasks: freshTasks,
+            notes: freshNotes,
+          }))
+        } else {
+          setTasks({})
+          setNotes({})
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ tasks: {}, notes: {} }))
+        }
+      } catch (err) {
+        console.log('Ошибка загрузки из Firestore: ', err)
+      }
+
+      if (!cached) {
+        setDataLoaded(true)
+      }
     }
     loadData()
   }, [userId])
   useEffect(() => {
     if (!userId || !dataLoaded) return
+
+    const CACHE_KEY = `calendar_cache_${userId}`
+
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}")
+    cached.tasks = tasks;
+    cached.notes = notes;
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
 
     const saveData = async () => {
       try {
