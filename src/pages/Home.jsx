@@ -189,6 +189,23 @@ function Home() {
     if (!userId) return;
 
     const loadUserData = async () => {
+      const CACHE_KEY = `app_cache_${userId}`
+
+      const cached = localStorage.getItem(CACHE_KEY)
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached)
+          setHabits(parsed.habits || [])
+          setGlasses(parsed.glasses || 0)
+          setMaxGlasses(parsed.maxGlasses || 10)
+          setMaxSteps(parsed.maxSteps || 10000)
+          setUserCity(parsed.city || 'Omsk')
+          setDataLoaded(true)
+        } catch (err) {
+          console.log('ошибка парсинга кэша: ', err)
+        }
+      }
+
       try {
         const today = new Date().toISOString().split("T")[0];
         const userDocRef = doc(db, "users", userId);
@@ -206,6 +223,8 @@ function Home() {
             ...restOfData,
           };
         });
+
+        let finalHabits = habitsList
 
         if (userDocSnap.exists()) {
           const data = userDocSnap.data();
@@ -242,6 +261,8 @@ function Home() {
             });
           }
 
+          finalHabits = habitsList
+
           // 1. Город
           const cityFromDb = data.city || "Moscow";
           setUserCity(cityFromDb); // триггерует погоду
@@ -271,6 +292,7 @@ function Home() {
               completed: false,
             }));
 
+            finalHabits = resetHabits
             setHabits(resetHabits);
             setGlasses(0);
 
@@ -322,10 +344,23 @@ function Home() {
             return { id: habitDoc.id, ...restOfData };
           });
 
+          finalHabits = habitsList
           setUserCity("Omsk");
           setHabits(habitsList);
           setGlasses(0);
         }
+
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({
+            habits: finalHabits,
+            glasses: userDocSnap.exists() ? userDocSnap.data().glasses || 0 : 0,
+            maxGlasses: userDocSnap.exists() ? userDocSnap.data().maxGlasses || 10 : 10,
+            maxSteps: userDocSnap.exists() ? userDocSnap.data().maxSteps || 10000 : 10000,
+            city: userDocSnap.exists() ? userDocSnap.data().city || "Omsk" : "Omsk",
+            date: today,
+          })
+        )
 
         setDataLoaded(true);
       } catch (err) {
@@ -339,6 +374,12 @@ function Home() {
 
   useEffect(() => {
     if (!userId || !dataLoaded) return;
+
+    const CACHE_KEY = `app_cache_${userId}`
+
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}")
+    cached.glasses = glasses;
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
 
     const saveData = async () => {
       const today = new Date().toISOString().split("T")[0];
