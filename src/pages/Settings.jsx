@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { db, auth } from "../firebase.js";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, getDocs, addDoc, deleteDoc, collection } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "./Settings.css"; // Не забудь создать файл стилей
 import Header from "../components/Header.jsx";
@@ -85,17 +85,28 @@ function Settings() {
     setSaving(true);
     try {
       const userRef = doc(db, "users", auth.currentUser.uid);
+      const habitsCollectionRef = collection(db, 'users', auth.currentUser.uid, 'habits')
+
+      // получаем все текущие привычки из подколлекции
+      const snapshot = await getDocs(habitsCollectionRef)
+
+      // удалаяем каждую 
+      for (const docSnap of snapshot.docs) {
+        await deleteDoc(doc(db, 'users', auth.currentUser.uid, 'habits', docSnap.id))
+      }
+
+      //добавляем новые привычки
+      for(const habit of initialHabits) {
+        const { id: _, ...habitData } = habit
+        await addDoc(habitsCollectionRef, habitData)
+      }
 
       // обнуляем поля в базе
-      await setDoc(
-        userRef,
-        {
-          streak: 0,
-          habits: initialHabits,
-          tasks: {},
-        },
-        { merge: true },
-      );
+      await setDoc(userRef, {
+        streak: 0,
+        glasses: 0,
+        date: new Date().toISOString().split('T')[0]
+      }, { merge: true })
       alert("Прогресс успешно сброшен!");
       navigate("/profile");
     } catch (error) {
