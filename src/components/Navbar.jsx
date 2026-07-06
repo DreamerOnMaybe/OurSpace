@@ -24,7 +24,7 @@ function Navbar({ activeTab, onPlusClick, isChatCenter = false }) {
       <button className={`nav-item ${activeTab === 'calendar' ? 'active' : ''}`} onClick={() => navigate("/calendar")}>
         <img src={calendar} alt="Кнопка календарь" />
       </button>
-      <button className="nav-item">
+      <button className={`nav-item ${activeTab === 'notifications' ? 'active' : ''}`} onClick={() => navigate("/notifications")}>
         <img src={bellNotification} alt="Кнопка уведомлений" />
       </button>
     </nav>

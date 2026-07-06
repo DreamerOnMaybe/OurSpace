@@ -8,6 +8,7 @@ import Auth from './pages/Auth.jsx'
 import Profile from './pages/Profile.jsx'
 import Notes from './pages/Notes.jsx'
 import Settings from './pages/Settings.jsx'
+import Notifications from './pages/Notifications.jsx'
 
 import { Navigate } from 'react-router-dom'
 
@@ -80,7 +81,13 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/notifications" element={
+          <ProtectedRoute user={user} loading={loading}>
+            <Notifications />
+          </ProtectedRoute>
+        } />
       </Routes>
+      
     </BrowserRouter>
   )
 }
