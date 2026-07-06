@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { db, auth } from "../firebase.js";
-import { doc, getDocs, updateDoc, collection } from "firebase/firestore";
+import { doc, getDocs, updateDoc, collection, deleteDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { seedTestNotifications } from "../utils/notificationsHelper";
+import { NOTIFICATION_TYPES } from "../utils/notificationsHelper";
 
 import Navbar from "../components/Navbar.jsx";
 import Header from "../components/Header.jsx";
 import backBtn from "../assets/arrow-left-long.svg";
+import "./Notifications.css";
 
 function Notifications() {
     const [notifications, setNotifications] = useState([])
@@ -55,6 +58,47 @@ function Notifications() {
         }
     }
 
+    const handleSeedTestData = async () => {
+        if (!userId) return;
+
+        try {
+            // Обновляем список уведомлений без перезагрузки страницы
+            const notificationsRef = collection(db, 'users', userId, 'notifications');
+            const oldSnapshot = await getDocs(notificationsRef);
+            for (const doc of oldSnapshot.docs) {
+                await deleteDoc(doc.ref);
+            }
+
+            await seedTestNotifications(userId);
+
+            const newSnapshot = await getDocs(notificationsRef)
+            const notificationsList = newSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            setNotifications(notificationsList);
+        } catch (error) {
+            console.error('Ошибка при создании тестовых уведомлений:', error);
+            alert('Не удалось создать тестовые уведомления');
+        }
+    };
+
+    const handleDeleteNotification = async (notificationId) => {
+        if (!userId) return;
+
+        const confirmDelete = window.confirm('Удалить это уведомление?');
+        if (!confirmDelete) return;
+
+        try {
+            const ref = doc(db, "users", userId, "notifications", notificationId);
+            await deleteDoc(ref);
+            setNotifications(notifications.filter(n => n.id !== notificationId));
+        } catch (error) {
+            console.error('Ошибка при удалении уведомления:', error);
+            alert('Не удалось удалить уведомление');
+        }
+    };
+
     return (
         <div className="app-container">
             <Header
@@ -67,17 +111,96 @@ function Notifications() {
                 {notifications.length === 0 ? (
                     <p className="empty-text">Уведомлений пока нет...</p>
                 ) : (
-                    notifications.map(notification => (
-                        <div key={notification.id} className={`notification-card ${notification.isRead ? 'read' : 'unread'}`}>
-                            <h3>{notification.title}</h3>
-                            <p>{notification.message}</p>
-                            <span className="notification-date">
-                                {new Date(notification.createdAt?.toDate()).toLocaleDateString('ru-RU')}
-                            </span>
-                        </div>
-                    ))
+                    notifications.map((notification) => {
+                        const typeConfig = NOTIFICATION_TYPES[notification.type] || {
+                            icon: "🔔",
+                            color: "#9e9e9e",
+                            gradient: "linear-gradient(135deg, #bdbdbd 0%, #757575 100%)",
+                        };
+
+                        const createdAt = notification.createdAt?.toDate
+                            ? notification.createdAt.toDate()
+                            : new Date();
+
+                        return (
+                            <div
+                                key={notification.id}
+                                className={`notification-card ${notification.isRead ? "read" : "unread"}`}
+                                data-type={notification.type}
+                                onClick={async () => {
+                                    if (!notification.isRead) {
+                                        try {
+                                            const ref = doc(db, "users", userId, "notifications", notification.id);
+                                            await updateDoc(ref, { isRead: true });
+                                            setNotifications(
+                                                notifications.map((n) =>
+                                                    n.id === notification.id ? { ...n, isRead: true } : n
+                                                )
+                                            );
+                                        } catch (error) {
+                                            console.error('Ошибка при отметки уведомления: ', error)
+                                            setNotifications(
+                                                notifications.map((n) =>
+                                                    n.id === notification.id ? { ...n, isRead: true } : n
+                                                )
+                                            );
+                                        }
+                                    }
+                                }}
+                            >
+                                <div
+                                    className="notification-icon"
+                                    style={{ background: typeConfig.gradient }}
+                                >
+                                    {typeConfig.icon}
+                                </div>
+
+                                <div className="notification-content">
+                                    <div className="notification-header">
+                                        <h3 className="notification-title">{notification.title}</h3>
+                                        <span className="notification-date">
+                                            {createdAt.toLocaleDateString("ru-RU", {
+                                                day: "numeric",
+                                                month: "short",
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            })}
+                                        </span>
+                                        <button
+                                            className="delete-notification-btn"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteNotification(notification.id);
+                                            }}
+                                            title="Удалить"
+                                        >
+                                            🗑️
+                                        </button>
+                                    </div>
+                                    <p className="notification-message">{notification.message}</p>
+                                </div>
+                            </div>
+                        );
+                    })
                 )}
             </div>
+
+            <button
+                onClick={handleSeedTestData}
+                style={{
+                    position: "fixed",
+                    bottom: "70px",
+                    right: "20px",
+                    padding: "8px 16px",
+                    background: "#ff9800",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "8px",
+                    zIndex: 1000,
+                }}
+            >
+                🧪 Создать тестовые уведомления
+            </button>
 
             <Navbar
                 activeTab="notifications"

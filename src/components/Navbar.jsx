@@ -8,11 +8,11 @@ import bellNotification from "../assets/bell-notification.svg";
 import chat from "../assets/chat.svg"
 import check from '../assets/check.svg'
 
-function Navbar({ activeTab, onPlusClick, isChatCenter = false, onMarkRead }) {
+function Navbar({ activeTab, onPlusClick, isChatCenter = false, onMarkAllRead }) {
   const navigate = useNavigate();
 
   const centerIcon = isChatCenter ? chat : (activeTab === 'notifications' ? check : plus)
-  const centerAction = activeTab === 'notifications' ? onMarkRead : onPlusClick
+  const centerAction = activeTab === 'notifications' ? onMarkAllRead : onPlusClick
 
   return (
     <nav className="nav-bar">
