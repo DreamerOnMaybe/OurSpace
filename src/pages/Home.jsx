@@ -18,6 +18,7 @@ import AddHabitModal from "../components/AddHabitModal";
 import Header from "../components/Header.jsx";
 import Navbar from "../components/Navbar.jsx";
 import SettingsModal from "../components/SettingsModal.jsx";
+import { createNotification } from '../utils/notificationsHelper.js'
 
 import walk from "../assets/walk.svg";
 import water from "../assets/water.svg";
@@ -261,6 +262,23 @@ function Home() {
             });
           }
 
+          if (userDocSnap.exists()) {
+            const data = userDocSnap.data()
+
+            const notificationsRef = collection(db, 'users', userId, 'notifications')
+            const notificationsSnapshot = await getDocs(notificationsRef)
+            const hasWelcomeNotification = notificationsSnapshot.docs.some(
+              doc => doc.data().type === 'welcome'
+            )
+            if (!hasWelcomeNotification) {
+            await createNotification(userId, {
+              type: 'welcome',
+              title: 'Добро пожаловать в OurSpace!👋',
+              message: 'Привет! Я создатель этого приложения. Спасибо, что присоединился. Здесь ты сможешь отслеживать привычки, задачи и становиться лучше каждый день. Я разрабатываю это приложение один, если у тебя возникнут с ним проблемы не спеши писать негативный отзыв, ты можешь написать мне лично в телеграм или вк. А если вдруг ты захочешь меня поддержать, то в настройках можно найти кнопку доната, а так же и ссылки на мои соцсети.'
+            })
+          }
+          }
+
           finalHabits = habitsList
 
           // 1. Город
@@ -334,6 +352,12 @@ function Home() {
             const { id: _, ...habitData } = habit;
             await addDoc(collection(db, "users", userId, "habits"), habitData);
           }
+
+          await createNotification(userId, {
+            type: 'welcome',
+            title: 'Добро пожаловать в OurSpace!👋',
+            message: 'Привет! Я создатель этого приложения. Спасибо, что присоединился. Здесь ты сможешь отслеживать привычки, задачи и становиться лучше каждый день. Я разрабатываю это приложение один, если у тебя возникнут с ним проблемы не спеши писать негативный отзыв, ты можешь написать мне лично в телеграм или вк. А если вдруг ты захочешь меня поддержать, то в настройках можно найти кнопку доната, а так же и ссылки на мои соцсети.'
+          })
 
           const newSnapshot = await getDocs(
             collection(db, "users", userId, "habits"),

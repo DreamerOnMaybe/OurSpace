@@ -58,31 +58,6 @@ function Notifications() {
         }
     }
 
-    const handleSeedTestData = async () => {
-        if (!userId) return;
-
-        try {
-            // Обновляем список уведомлений без перезагрузки страницы
-            const notificationsRef = collection(db, 'users', userId, 'notifications');
-            const oldSnapshot = await getDocs(notificationsRef);
-            for (const doc of oldSnapshot.docs) {
-                await deleteDoc(doc.ref);
-            }
-
-            await seedTestNotifications(userId);
-
-            const newSnapshot = await getDocs(notificationsRef)
-            const notificationsList = newSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setNotifications(notificationsList);
-        } catch (error) {
-            console.error('Ошибка при создании тестовых уведомлений:', error);
-            alert('Не удалось создать тестовые уведомления');
-        }
-    };
-
     const handleDeleteNotification = async (notificationId) => {
         if (!userId) return;
 
@@ -184,23 +159,6 @@ function Notifications() {
                     })
                 )}
             </div>
-
-            <button
-                onClick={handleSeedTestData}
-                style={{
-                    position: "fixed",
-                    bottom: "70px",
-                    right: "20px",
-                    padding: "8px 16px",
-                    background: "#ff9800",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "8px",
-                    zIndex: 1000,
-                }}
-            >
-                🧪 Создать тестовые уведомления
-            </button>
 
             <Navbar
                 activeTab="notifications"
