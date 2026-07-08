@@ -19,6 +19,7 @@ import Header from "../components/Header.jsx";
 import Navbar from "../components/Navbar.jsx";
 import SettingsModal from "../components/SettingsModal.jsx";
 import { createNotification } from '../utils/notificationsHelper.js'
+import { useWaterReminder } from '../hooks/useWaterReminder.js';
 
 import walk from "../assets/walk.svg";
 import water from "../assets/water.svg";
@@ -41,6 +42,7 @@ function Home() {
   const [userId, setUserId] = useState(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [notificationSettings, setNotificationSettings] = useState({ water: true });
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -271,12 +273,12 @@ function Home() {
               doc => doc.data().type === 'welcome'
             )
             if (!hasWelcomeNotification) {
-            await createNotification(userId, {
-              type: 'welcome',
-              title: 'Добро пожаловать в OurSpace!👋',
-              message: 'Привет! Я создатель этого приложения. Спасибо, что присоединился. Здесь ты сможешь отслеживать привычки, задачи и становиться лучше каждый день. Я разрабатываю это приложение один, если у тебя возникнут с ним проблемы не спеши писать негативный отзыв, ты можешь написать мне лично в телеграм или вк. А если вдруг ты захочешь меня поддержать, то в настройках можно найти кнопку доната, а так же и ссылки на мои соцсети.'
-            })
-          }
+              await createNotification(userId, {
+                type: 'welcome',
+                title: 'Добро пожаловать в OurSpace!👋',
+                message: 'Привет! Я создатель этого приложения. Спасибо, что присоединился. Здесь ты сможешь отслеживать привычки, задачи и становиться лучше каждый день. Я разрабатываю это приложение один, если у тебя возникнут с ним проблемы не спеши писать негативный отзыв, ты можешь написать мне лично в телеграм или вк. А если вдруг ты захочешь меня поддержать, то в настройках можно найти кнопку доната, а так же и ссылки на мои соцсети.'
+              })
+            }
           }
 
           finalHabits = habitsList
@@ -336,6 +338,11 @@ function Home() {
           // 3. Настройки
           setMaxGlasses(data.maxGlasses || 10);
           setMaxSteps(data.maxSteps || 10000);
+          if (data.notificationSettings) {
+            setNotificationSettings(data.notificationSettings);
+          } else {
+            setNotificationSettings({ water: true });
+          }
           setUserCity(data.city || "Omsk");
         } else {
           // Если пользователя нет — создать профиль по умолчанию
@@ -396,6 +403,8 @@ function Home() {
     loadUserData();
   }, [userId]);
 
+  useWaterReminder(userId, glasses, notificationSettings);
+
   useEffect(() => {
     if (!userId || !dataLoaded) return;
 
@@ -414,6 +423,7 @@ function Home() {
           date: today,
           maxGlasses,
           maxSteps,
+          notificationSettings,
         },
         { merge: true },
       );
@@ -495,9 +505,12 @@ function Home() {
     }
   };
 
-  const handleSaveSettings = (newGlasses, newSteps) => {
+  const handleSaveSettings = (newGlasses, newSteps, newNotificationSettings) => {
     setMaxGlasses(newGlasses);
     setMaxSteps(newSteps);
+    if (newNotificationSettings) {
+      setNotificationSettings(newNotificationSettings)
+    }
   };
 
   return (
@@ -656,6 +669,7 @@ function Home() {
         <SettingsModal
           maxGlasses={maxGlasses}
           maxSteps={maxSteps}
+          notificationSettings={notificationSettings}
           onSave={handleSaveSettings}
           onClose={() => setIsSettingsOpen(false)}
         />

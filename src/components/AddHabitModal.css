@@ -173,7 +173,8 @@ input {
   background: var(--current-bg);
   color: var(--current-text);
   cursor: pointer;
-  appearance: none; /* Убираем дефолтную стрелочку браузера */
+  appearance: none;
+  /* Убираем дефолтную стрелочку браузера */
   text-align: center;
 }
 
@@ -201,8 +202,10 @@ label {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-10px); /* Блок чуть-чуть «подплывает» снизу */
+    transform: translateY(-10px);
+    /* Блок чуть-чуть «подплывает» снизу */
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -216,6 +219,10 @@ label {
   margin-bottom: 15px;
   padding: 0 5px;
   color: var(--colors-neutrals-0);
+}
+
+.time-toggle-container span {
+  font-size: 14px;
 }
 
 /* Основа переключателя */
@@ -237,7 +244,10 @@ label {
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #ccc;
   transition: .4s;
 }
@@ -254,11 +264,12 @@ label {
 }
 
 /* Когда включено */
-input:checked + .slider {
-  background-color: #4caf50; /* Твой зеленый цвет */
+input:checked+.slider {
+  background-color: #4caf50;
+  /* Твой зеленый цвет */
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(24px);
 }
 
@@ -266,6 +277,7 @@ input:checked + .slider:before {
 .slider.round {
   border-radius: 34px;
 }
+
 .slider.round:before {
   border-radius: 50%;
 }
