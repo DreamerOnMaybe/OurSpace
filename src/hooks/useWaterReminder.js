@@ -45,7 +45,7 @@ export const useWaterReminder = (userId, glasses, notificationSettings) => {
     }, [glasses])
 
     useEffect(() => {
-        if (!userId || notificationSettings?.water) {
+        if (!userId || !notificationSettings?.water) {
             console.log('Напоминание о воде отключено')
             return
         }

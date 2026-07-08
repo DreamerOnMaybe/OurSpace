@@ -203,7 +203,10 @@ function Home() {
           setMaxGlasses(parsed.maxGlasses || 10)
           setMaxSteps(parsed.maxSteps || 10000)
           setUserCity(parsed.city || 'Omsk')
-          setDataLoaded(true)
+
+          if (parsed.notificationSettings) {
+            setNotificationSettings(parsed.notificationSettings)
+          }
         } catch (err) {
           console.log('ошибка парсинга кэша: ', err)
         }
@@ -389,6 +392,7 @@ function Home() {
             maxGlasses: userDocSnap.exists() ? userDocSnap.data().maxGlasses || 10 : 10,
             maxSteps: userDocSnap.exists() ? userDocSnap.data().maxSteps || 10000 : 10000,
             city: userDocSnap.exists() ? userDocSnap.data().city || "Omsk" : "Omsk",
+            notificationSettings: userDocSnap.exists() ? userDocSnap.data().notificationSettings || { water: true } : { water: true },
             date: today,
           })
         )
@@ -407,11 +411,10 @@ function Home() {
 
   useEffect(() => {
     if (!userId || !dataLoaded) return;
-
-    const CACHE_KEY = `app_cache_${userId}`
-
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}")
+    const CACHE_KEY = `app_cache_${userId}`;
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
     cached.glasses = glasses;
+    cached.notificationSettings = notificationSettings;
     localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
 
     const saveData = async () => {
@@ -429,7 +432,7 @@ function Home() {
       );
     };
     saveData();
-  }, [glasses, userId, dataLoaded, maxGlasses, maxSteps]);
+  }, [glasses, userId, dataLoaded, maxGlasses, maxSteps, notificationSettings]);
 
   const handleToggleHabit = (id) => {
     setHabits(

@@ -45,7 +45,7 @@ function SettingsModal({ maxGlasses, maxSteps, notificationSettings, onSave, onC
 
                 <div className="add-modal-btns">
                     <button className="close" onClick={onClose}>Отмена</button>
-                    <button onClick={() => { onSave(glasses || 10, steps || 10000); onClose() }}>Сохранить</button>
+                    <button onClick={handleSave}>Сохранить</button>
                 </div>
             </div>
         </div>
